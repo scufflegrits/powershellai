@@ -14,11 +14,15 @@
     File or directory to analyze. Directories are searched recursively.
 
 .PARAMETER Settings
-    Optional PSScriptAnalyzer settings file. If omitted, the script uses
-    PSScriptAnalyzerSettings.psd1 in the current directory when present.
+    Optional PSScriptAnalyzer settings file. If omitted, the script searches
+    for PSScriptAnalyzerSettings.psd1 starting at Path (or its parent folder
+    when Path is a file) and walking up to the repository root, which is the
+    first folder containing .git. The nearest file found is used.
 
 .PARAMETER Severity
-    PSScriptAnalyzer severities to include. Defaults to Error and Warning.
+    Severities to include, for both PSScriptAnalyzer rules and the supplemental
+    guide checks. Defaults to Error and Warning. Parse errors are always
+    reported.
 
 .EXAMPLE
     ./Invoke-PowerShellGuideCheck.ps1 -Path ./src
@@ -72,17 +76,33 @@ if ($sourceFiles.Count -eq 0) {
 }
 
 if (-not $Settings) {
-    $defaultSettings = Join-Path -Path (Get-Location).Path -ChildPath 'PSScriptAnalyzerSettings.psd1'
-    if (Test-Path -LiteralPath $defaultSettings -PathType Leaf) {
-        $Settings = $defaultSettings
+    # Walk up from the target so results do not depend on the caller's working directory.
+    $searchDirectory = if ([System.IO.Directory]::Exists($resolvedPath)) {
+        [System.IO.DirectoryInfo]::new($resolvedPath)
+    } else {
+        [System.IO.FileInfo]::new($resolvedPath).Directory
+    }
+    while ($null -ne $searchDirectory) {
+        $candidate = Join-Path -Path $searchDirectory.FullName -ChildPath 'PSScriptAnalyzerSettings.psd1'
+        if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+            $Settings = $candidate
+            break
+        }
+        # Stop at the repository root so settings from unrelated parent folders are never applied.
+        if (Test-Path -LiteralPath (Join-Path -Path $searchDirectory.FullName -ChildPath '.git')) {
+            break
+        }
+        $searchDirectory = $searchDirectory.Parent
     }
 }
 if ($Settings) {
     $Settings = (Resolve-Path -LiteralPath $Settings -ErrorAction Stop).Path
+    Write-Information "Using analyzer settings: $Settings" -InformationAction Continue
+} else {
+    Write-Information 'No analyzer settings file found; using PSScriptAnalyzer default rules.' -InformationAction Continue
 }
 
 $analyzerParams = @{
-    Path     = @($sourceFiles.FullName)
     Severity = $Severity
 }
 if ($Settings) {
@@ -90,10 +110,59 @@ if ($Settings) {
 }
 
 $findings = [System.Collections.Generic.List[object]]::new()
-$findings.AddRange([object[]] @(Invoke-ScriptAnalyzer @analyzerParams))
+# Invoke-ScriptAnalyzer -Path accepts a single path, so analyze the filtered file list one file at a time.
+foreach ($file in $sourceFiles) {
+    $findings.AddRange([object[]] @(Invoke-ScriptAnalyzer -Path $file.FullName @analyzerParams))
+}
 
 # These AST checks supplement analyzer rules and intentionally report only
 # high-confidence patterns. They do not attempt to infer runtime intent.
+# Invoke-Expression is covered by PSScriptAnalyzer's PSAvoidUsingInvokeExpression.
+$loopCommandNames = @('ForEach-Object', 'foreach', '%')
+
+function ConvertTo-GuideFinding {
+    # Builds a finding with the same shape as PSScriptAnalyzer diagnostics so results sort and print together.
+    param(
+        [string] $ScriptName,
+        [System.Management.Automation.Language.IScriptExtent] $Extent,
+        [string] $RuleName,
+        [string] $Severity,
+        [string] $Message
+    )
+
+    [PSCustomObject]@{
+        ScriptName = $ScriptName
+        Line       = $Extent.StartLineNumber
+        Column     = $Extent.StartColumnNumber
+        RuleName   = $RuleName
+        Severity   = $Severity
+        Message    = $Message
+    }
+}
+
+function Test-InsideLoop {
+    # Returns $true when the node runs repeatedly: inside a loop statement or a
+    # ForEach-Object script block, without crossing a function boundary.
+    param([System.Management.Automation.Language.Ast] $Node)
+
+    $current = $Node.Parent
+    while ($null -ne $current) {
+        if ($current -is [System.Management.Automation.Language.LoopStatementAst]) {
+            return $true
+        }
+        if ($current -is [System.Management.Automation.Language.ScriptBlockExpressionAst] -and
+            $current.Parent -is [System.Management.Automation.Language.CommandAst] -and
+            $current.Parent.GetCommandName() -in $loopCommandNames) {
+            return $true
+        }
+        if ($current -is [System.Management.Automation.Language.FunctionDefinitionAst]) {
+            return $false
+        }
+        $current = $current.Parent
+    }
+    return $false
+}
+
 foreach ($file in $sourceFiles) {
     $tokens = $null
     $parseErrors = $null
@@ -103,52 +172,51 @@ foreach ($file in $sourceFiles) {
         [ref] $parseErrors
     )
 
+    # Parse errors are always reported because every other result is unreliable without a valid parse.
     foreach ($parseError in $parseErrors) {
-        $findings.Add([PSCustomObject]@{
-            ScriptName = $file.FullName
-            Line       = $parseError.Extent.StartLineNumber
-            Column     = $parseError.Extent.StartColumnNumber
-            RuleName   = 'GuideParseError'
-            Severity   = 'Error'
-            Message    = $parseError.Message
-        })
+        $findings.Add((ConvertTo-GuideFinding -ScriptName $file.FullName -Extent $parseError.Extent -RuleName 'GuideParseError' -Severity 'Error' -Message $parseError.Message))
     }
 
-    foreach ($command in $ast.FindAll({ param($node) $node -is [System.Management.Automation.Language.CommandAst] }, $true)) {
-        $commandName = $command.GetCommandName()
-        if ($commandName -in 'Invoke-Expression', 'iex') {
-            $findings.Add([PSCustomObject]@{
-                ScriptName = $file.FullName
-                Line       = $command.Extent.StartLineNumber
-                Column     = $command.Extent.StartColumnNumber
-                RuleName   = 'GuideAvoidInvokeExpression'
-                Severity   = 'Warning'
-                Message    = 'Avoid Invoke-Expression; pass input as structured arguments instead.'
-            })
+    if ('Information' -in $Severity) {
+        $isVariableAssignment = {
+            param($node)
+            $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and
+            $node.Left -is [System.Management.Automation.Language.VariableExpressionAst]
         }
-    }
+        $assignments = @($ast.FindAll($isVariableAssignment, $true))
 
-    foreach ($assignment in $ast.FindAll({
-        param($node)
-        $node -is [System.Management.Automation.Language.AssignmentStatementAst] -and
-        $node.Operator -eq [System.Management.Automation.Language.TokenKind]::PlusEquals
-    }, $true)) {
-        if ($assignment.Left -is [System.Management.Automation.Language.VariableExpressionAst]) {
-            $findings.Add([PSCustomObject]@{
-                ScriptName = $file.FullName
-                Line       = $assignment.Extent.StartLineNumber
-                Column     = $assignment.Extent.StartColumnNumber
-                RuleName   = 'GuideAvoidArrayAppend'
-                Severity   = 'Information'
-                Message    = "Review '+=' on '$($assignment.Left.VariablePath.UserPath)'. Repeated array appends in loops can be inefficient; use a pipeline assignment or generic list where appropriate."
-            })
+        # Only variables initialized as arrays are tracked, so numeric counters and
+        # string concatenation using += are not reported.
+        $arrayVariables = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+        foreach ($assignment in $assignments) {
+            $rightExpression = if ($assignment.Right -is [System.Management.Automation.Language.CommandExpressionAst]) {
+                $assignment.Right.Expression
+            }
+            if ($assignment.Operator -eq [System.Management.Automation.Language.TokenKind]::Equals -and
+                ($rightExpression -is [System.Management.Automation.Language.ArrayExpressionAst] -or
+                $rightExpression -is [System.Management.Automation.Language.ArrayLiteralAst])) {
+                $null = $arrayVariables.Add($assignment.Left.VariablePath.UserPath)
+            }
+        }
+
+        foreach ($assignment in $assignments) {
+            $variableName = $assignment.Left.VariablePath.UserPath
+            if ($assignment.Operator -eq [System.Management.Automation.Language.TokenKind]::PlusEquals -and
+                $arrayVariables.Contains($variableName) -and
+                (Test-InsideLoop -Node $assignment)) {
+                $message = "Array '$variableName' is appended with '+=' inside a loop, which copies the array on every iteration. Assign the loop output directly or use a generic list."
+                $findings.Add((ConvertTo-GuideFinding -ScriptName $file.FullName -Extent $assignment.Extent -RuleName 'GuideAvoidArrayAppend' -Severity 'Information' -Message $message))
+            }
         }
     }
 }
 
 $findings = @($findings | Sort-Object ScriptName, Line, Column, RuleName)
 if ($findings.Count -gt 0) {
-    $findings | Select-Object ScriptName, Line, Column, Severity, RuleName, Message | Format-Table -Wrap -AutoSize
+    # One line per finding keeps output readable and searchable regardless of console width.
+    foreach ($finding in $findings) {
+        '{0}:{1}:{2}: [{3}] {4}: {5}' -f $finding.ScriptName, $finding.Line, $finding.Column, $finding.Severity, $finding.RuleName, $finding.Message
+    }
     $errorCount = @($findings | Where-Object Severity -eq 'Error').Count
     $warningCount = @($findings | Where-Object Severity -eq 'Warning').Count
     $informationCount = @($findings | Where-Object Severity -eq 'Information').Count

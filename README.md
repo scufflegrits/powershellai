@@ -23,10 +23,23 @@ This repository provides practical standards for writing, reviewing, testing, an
 ## Requirements
 
 - PowerShell 7 or later.
-- PSScriptAnalyzer for static analysis and the guide checker.
-- Pester 5 for the repository's Pester tests.
+- PSScriptAnalyzer 1.24.0 for static analysis and the guide checker.
+- Pester 5.7.1 for the repository's Pester tests.
 
-Install tools only through the setup method approved for your environment. The checker does not install modules.
+These are the versions pinned in CI (`.github/workflows/powershell.yml`). To install them for your user account from the PowerShell Gallery, run in `pwsh`:
+
+```powershell
+Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.24.0 -Scope CurrentUser -Repository PSGallery
+Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Repository PSGallery -SkipPublisherCheck
+```
+
+PowerShell asks you to confirm installing from an untrusted repository; answer `Y`. `-SkipPublisherCheck` is needed on Windows, where an older Pester 3.4 signed by Microsoft ships with Windows PowerShell; it is harmless elsewhere. Confirm the installed versions with:
+
+```powershell
+Get-Module -ListAvailable PSScriptAnalyzer, Pester | Select-Object Name, Version
+```
+
+If your organization uses an internal repository or another approved setup method, use that instead. When you change a pinned version, update both this section and the workflow. The checker never installs modules.
 
 ## Lint and run static checks
 
@@ -36,7 +49,7 @@ From the repository root, run:
 ./Invoke-PowerShellGuideCheck.ps1 -Path .
 ```
 
-PSScriptAnalyzer is the project's linter. The checker uses `PSScriptAnalyzerSettings.psd1` when it exists in the current directory. It exits nonzero for errors and warnings; informational findings require review. Static checks cannot determine whether a design fits its threat model or fully verify runtime behavior.
+PSScriptAnalyzer is the project's linter. The checker uses the nearest `PSScriptAnalyzerSettings.psd1`, searching upward from the target path to the repository root, unless `-Settings` is passed. It exits nonzero for errors and warnings; informational findings require review. Static checks cannot determine whether a design fits its threat model or fully verify runtime behavior.
 
 ## Run tests
 
@@ -47,6 +60,8 @@ Invoke-Pester -Path ./Tests -Output Detailed
 ```
 
 The tests invoke the checker in a child `pwsh` process and require PSScriptAnalyzer to be available to that process.
+
+GitHub Actions runs the guide checks and Pester suite on both Ubuntu and Windows for pushes and pull requests. The workflow pins Pester and PSScriptAnalyzer versions so changes in tool releases do not silently alter results.
 
 ## Repository layout
 
