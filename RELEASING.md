@@ -75,7 +75,7 @@ flowchart TD
 
 3. **Prepare the release commit.**
    - Rename `## [Unreleased]` to `## [X.Y.Z] - YYYY-MM-DD` and add a new, empty `## [Unreleased]` above it.
-   - Update the pinned tag in [README.md](README.md) (the "Use in other repositories" example and the "Guide versions" section) and in [templates/AGENTS-powershell.md](templates/AGENTS-powershell.md) to `vX.Y.Z`, so the tagged commit points to itself.
+   - Update every release tag mentioned in [README.md](README.md) (search for `v1.`) and in [templates/AGENTS-powershell.md](templates/AGENTS-powershell.md) to `vX.Y.Z`, so the tagged commit points to itself.
    - Commit these changes.
 
 4. **Run the checks locally.**

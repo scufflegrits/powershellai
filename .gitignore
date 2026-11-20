@@ -1,6 +1,10 @@
 # Local trash folder for retired files (never published)
 99_Archive/
 
+# Scripts placed here for AI review may contain internal names or secrets.
+input/*
+!input/.gitkeep
+
 # PowerShell module and script build output
 [Bb]uild/
 [Oo]ut/

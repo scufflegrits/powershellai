@@ -4,6 +4,9 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- Added `HANDOFF.md` so a maintainer can resume work from another machine: how to check the current state, working rules, and setup tips.
+- README: every section now explains plainly why it exists, with a short glossary of terms; clarified that the Pester tests check the check script, not your scripts; corrected where tool versions are pinned.
+- `.gitignore`: files in `input/` are no longer committed, because scripts under review may contain internal names or secrets.
 - README: explained that the Mermaid conventions exist so AI agents diagram scripts consistently, making unhandled paths easier to find during code review.
 - Added `RELEASING.md` documenting the release process, including running each push as its own command.
 - Added `reference/mermaid-best-practices.md` (Mermaid conventions 1.0.12), linked from the README and `prompt-common.md`.
