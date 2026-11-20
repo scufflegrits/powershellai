@@ -14,6 +14,7 @@ This repository provides practical standards for writing, reviewing, testing, an
 - [PowerShell Best Practices](powershell-best-practices.md) — scripting, modules, security, testing, documentation, and AI-agent practices.
 - [Pester testing guide](powershell-pester-testing.md) — Pester v5 test design, mocks, discovery, TestDrive, coverage, and CI.
 - [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md) — analyzer configuration, compatibility checks, formatting, suppressions, and CI.
+- [Mermaid conventions](reference/mermaid-best-practices.md) — how to write, render, and verify the Mermaid diagrams in this repository.
 - [PSScriptAnalyzer](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/using-scriptanalyzer?view=ps-modules) — the PowerShell linter and static analyzer used by this project.
 - [Guide check script](Invoke-PowerShellGuideCheck.ps1) — runs PSScriptAnalyzer and supplemental AST checks for selected guide rules.
 - [Shared AI prompt](prompt-common.md) — workflow tiers scaled to task size, verification, Mermaid diagrams, and reporting; builds on §13 of the guide.
@@ -94,6 +95,7 @@ Optional inputs: `path` (default `.`), `settings` (default: nearest `PSScriptAna
 
 - `.github/workflows/` — `powershell-guide-check.yml` (reusable workflow) and `powershell.yml` (this repository's CI).
 - `templates/` — material to copy into other repositories.
+- `reference/` — supporting guides, such as the Mermaid diagram conventions, and optional Mermaid audit scripts in `reference/scripts/`.
 - `input/` — place scripts here when using the review prompt.
 - `Tests/` — Pester tests for the guide checker.
 - `PSScriptAnalyzerSettings.psd1` — shared static-analysis settings.

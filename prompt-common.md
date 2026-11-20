@@ -43,6 +43,8 @@ The coordinating agent owns the task, integrates changes, resolves conflicts, an
 
 For complex scripts with multiple branches, loops, external calls, errors, cleanup paths, or state-changing actions, create a Mermaid flowchart showing important decisions, side effects, failures, and cleanup. Skip diagrams for short, linear scripts.
 
+Follow [the Mermaid conventions](reference/mermaid-best-practices.md), including its **For AI agents: verify before you deliver** steps: render the diagram and report whether it was rendered, parsed, or only read. Use one node per decision, side effect, or exit path, and label each branch with its condition (`yes`/`no`, `-WhatIf`, `catch`), so missing paths stand out. If `reference/scripts/audit_mermaid.py` can run, use it as well; otherwise follow the guide's manual checks.
+
 Compare the diagram with the source and tests. Use it to look for unhandled branches, side effects that bypass validation or `ShouldProcess`, errors that skip cleanup, and unclear outcomes. The diagram is a review aid, not a substitute for source inspection or tests. Keep it accurate as code changes.
 
 ## Verification
