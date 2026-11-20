@@ -4,7 +4,7 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
-- Added `RELEASING.md` documenting the release process.
+- Added `RELEASING.md` documenting the release process, including running each push as its own command.
 
 ## [1.1.0] - 2026-11-19
 

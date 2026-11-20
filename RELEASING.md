@@ -2,6 +2,8 @@
 
 Other repositories pin this one by tag: they call `powershell-guide-check.yml@vX.Y.Z`, and `templates/AGENTS-powershell.md` links the guides at a tag. A published tag must therefore point to a commit that passed CI, and it must never move.
 
+Run each push (`git push`) as its own command. Do not chain it with commits, tagging, or CI watching. Each step that publishes something can then be seen and approved on its own, and AI agents' permission checks may block a combined command that includes a push.
+
 ## Steps
 
 1. **Record changes as they land.** Add entries under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
