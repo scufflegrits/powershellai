@@ -1,0 +1,37 @@
+# PowerShell module and script build output
+99_Archive/
+[Bb]uild/
+[Oo]ut/
+[Pp]ublish/
+
+# Test and coverage output
+[Cc]overage/
+[Tt]est[Rr]esults/
+coverage.xml
+testResults.xml
+
+# PowerShell editor and analysis state
+.vscode/
+*.ps1xml.bak
+*.pssc.bak
+*.psd1.bak
+*.psm1.bak
+*.ps1.bak
+
+# Package and dependency caches
+.packages/
+packages/
+PSDependOptions.json
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
