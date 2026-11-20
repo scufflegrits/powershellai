@@ -14,7 +14,8 @@ This repository provides practical standards for writing, reviewing, testing, an
 - [PowerShell Best Practices r1.0.7](powershell-best-practices-r1.0.7.md) — scripting, modules, security, testing, documentation, and AI-agent practices.
 - [Pester testing guide](powershell-pester-testing-r1.0.0.md) — Pester v5 test design, mocks, discovery, TestDrive, coverage, and CI.
 - [PSScriptAnalyzer guide](powershell-psscriptanalyzer-r1.0.0.md) — analyzer configuration, compatibility checks, formatting, suppressions, and CI.
-- [Guide check script](Invoke-PowerShellGuideCheck.ps1) — runs PSScriptAnalyzer and supplemental AST checks.
+- [PSScriptAnalyzer](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/using-scriptanalyzer?view=ps-modules) — the PowerShell linter and static analyzer used by this project.
+- [Guide check script](Invoke-PowerShellGuideCheck.ps1) — runs PSScriptAnalyzer and supplemental AST checks for selected guide rules.
 - [Shared AI prompt](prompt-common.md) — agent coordination, safety, verification, Mermaid diagrams, and reporting.
 - [AI script review prompt](prompt-review.md) — review an existing script, typically supplied under `input/`.
 - [AI script creation prompt](prompt-create.md) — design and create a script from requirements.
@@ -28,7 +29,7 @@ This repository provides practical standards for writing, reviewing, testing, an
 
 Install tools only through the setup method approved for your environment. The checker does not install modules.
 
-## Run static checks
+## Lint and run static checks
 
 From the repository root, run:
 
@@ -36,7 +37,7 @@ From the repository root, run:
 ./Invoke-PowerShellGuideCheck.ps1 -Path .
 ```
 
-The checker uses `PSScriptAnalyzerSettings.psd1` when it exists in the current directory. It exits nonzero for errors and warnings; informational findings require review. Static checks cannot determine whether a design fits its threat model or fully verifies runtime behavior.
+PSScriptAnalyzer is the project's linter. The checker uses `PSScriptAnalyzerSettings.psd1` when it exists in the current directory. It exits nonzero for errors and warnings; informational findings require review. Static checks cannot determine whether a design fits its threat model or fully verify runtime behavior.
 
 ## Run tests
 
