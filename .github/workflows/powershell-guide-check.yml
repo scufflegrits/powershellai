@@ -52,13 +52,13 @@ jobs:
 
     steps:
       - name: Check out caller repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # job.workflow_repository and job.workflow_sha identify the repository and commit
       # this reusable workflow was loaded from, so the checker always matches the ref the
       # caller pinned. (The job.workflow_* properties are not available on GitHub Enterprise Server.)
       - name: Check out guide tools
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ job.workflow_repository }}
           ref: ${{ job.workflow_sha }}

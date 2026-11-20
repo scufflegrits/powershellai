@@ -26,6 +26,7 @@ Notable changes to the guides and tools are recorded here.
 - Best-practices guide §13: added the rule not to commit, push, publish, or deploy unless asked (previously only in the prompt).
 - Documented the commands for installing the CI-pinned PSScriptAnalyzer and Pester versions.
 - Added a reusable GitHub Actions workflow (`powershell-guide-check.yml`) that other repositories can call at a pinned tag; this repository's CI now uses it.
+- CI uses `actions/checkout@v7` (Node.js 24); v4 targeted the deprecated Node.js 20 runtime.
 - Added `templates/AGENTS-powershell.md`, a section to copy into other repositories' agent instructions.
 
 ## [1.0.7] - 2026-11-19
