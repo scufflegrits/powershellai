@@ -9,36 +9,9 @@ permissions:
   contents: read
 
 jobs:
+  # Uses the same reusable workflow that other repositories call, so every push
+  # here also exercises the published workflow.
   quality:
-    name: PowerShell ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Install pinned analysis and test tools
-        shell: pwsh
-        run: |
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.24.0 -Scope CurrentUser -Force
-          Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force
-
-      - name: Run PSScriptAnalyzer and guide checks
-        shell: pwsh
-        run: ./Invoke-PowerShellGuideCheck.ps1 -Path .
-
-      - name: Run Pester tests
-        shell: pwsh
-        run: |
-          $configuration = New-PesterConfiguration
-          $configuration.Run.Path = './Tests'
-          $configuration.Run.Exit = $true
-          $configuration.Output.Verbosity = 'Detailed'
-          Invoke-Pester -Configuration $configuration
+    uses: ./.github/workflows/powershell-guide-check.yml
+    with:
+      pester-path: ./Tests

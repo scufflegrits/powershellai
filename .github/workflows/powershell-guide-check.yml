@@ -1,0 +1,112 @@
+# Reusable workflow: runs the PowerShell guide checker (PSScriptAnalyzer plus
+# supplemental AST checks) and, optionally, Pester tests in the calling repository.
+#
+# Call it from another repository, pinned to a release tag:
+#
+#   jobs:
+#     powershell:
+#       uses: scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.1.0
+#       with:
+#         pester-path: ./Tests
+#
+# The checker and tool versions come from the same ref as this workflow, so
+# pinning the tag pins everything.
+
+name: PowerShell guide check (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      path:
+        description: File or directory to analyze, relative to the caller's repository root.
+        type: string
+        default: .
+      settings:
+        description: PSScriptAnalyzer settings file. Empty searches upward from path to the repository root; if none is found, PSScriptAnalyzer defaults apply.
+        type: string
+        default: ''
+      severity:
+        description: Comma-separated severities that are reported (Error, Warning, Information). Errors and warnings fail the job.
+        type: string
+        default: Error,Warning
+      pester-path:
+        description: Pester test path. Empty skips Pester.
+        type: string
+        default: ''
+      os:
+        description: JSON array of runner labels.
+        type: string
+        default: '["ubuntu-latest", "windows-latest"]'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: PowerShell guide check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(inputs.os) }}
+
+    steps:
+      - name: Check out caller repository
+        uses: actions/checkout@v4
+
+      # job.workflow_repository and job.workflow_sha identify the repository and commit
+      # this reusable workflow was loaded from, so the checker always matches the ref the
+      # caller pinned. (The job.workflow_* properties are not available on GitHub Enterprise Server.)
+      - name: Check out guide tools
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: .powershellai-tools
+          sparse-checkout: |
+            Invoke-PowerShellGuideCheck.ps1
+          sparse-checkout-cone-mode: false
+
+      - name: Move guide tools out of the workspace
+        shell: pwsh
+        run: |
+          # Keeps the checker copy out of the caller's analysis and git status.
+          $destination = Join-Path $env:RUNNER_TEMP 'powershellai'
+          Move-Item -LiteralPath '.powershellai-tools' -Destination $destination
+
+      - name: Install pinned analysis and test tools
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion 1.24.0 -Scope CurrentUser -Force
+          Install-Module -Name Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck
+
+      - name: Run PSScriptAnalyzer and guide checks
+        shell: pwsh
+        env:
+          CHECK_PATH: ${{ inputs.path }}
+          CHECK_SETTINGS: ${{ inputs.settings }}
+          CHECK_SEVERITY: ${{ inputs.severity }}
+        run: |
+          # Inputs arrive through environment variables so they are never interpreted as script text.
+          $checkParams = @{
+              Path     = $env:CHECK_PATH
+              Severity = @($env:CHECK_SEVERITY -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+          }
+          if ($env:CHECK_SETTINGS) {
+              $checkParams.Settings = $env:CHECK_SETTINGS
+          }
+          & (Join-Path $env:RUNNER_TEMP 'powershellai/Invoke-PowerShellGuideCheck.ps1') @checkParams
+          exit $LASTEXITCODE
+
+      - name: Run Pester tests
+        if: inputs.pester-path != ''
+        shell: pwsh
+        env:
+          PESTER_PATH: ${{ inputs.pester-path }}
+        run: |
+          $configuration = New-PesterConfiguration
+          $configuration.Run.Path = $env:PESTER_PATH
+          $configuration.Run.Exit = $true
+          $configuration.Output.Verbosity = 'Detailed'
+          Invoke-Pester -Configuration $configuration

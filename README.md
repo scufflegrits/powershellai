@@ -61,10 +61,39 @@ Invoke-Pester -Path ./Tests -Output Detailed
 
 The tests invoke the checker in a child `pwsh` process and require PSScriptAnalyzer to be available to that process.
 
-GitHub Actions runs the guide checks and Pester suite on both Ubuntu and Windows for pushes and pull requests. The workflow pins Pester and PSScriptAnalyzer versions so changes in tool releases do not silently alter results.
+GitHub Actions runs the guide checks and Pester suite on both Ubuntu and Windows for pushes and pull requests. The workflow pins Pester and PSScriptAnalyzer versions so changes in tool releases do not silently alter results. This repository's CI calls the same reusable workflow that other repositories use, so every push also tests it.
+
+## Use in other repositories
+
+Pin a release tag so guide updates never change another repository's rules unexpectedly.
+
+**AI agent instructions.** Copy the section in [templates/AGENTS-powershell.md](templates/AGENTS-powershell.md) into the other repository's `AGENTS.md` or `CLAUDE.md`. It links the guides at a pinned tag and tells agents which checks to run.
+
+**CI.** Call the reusable workflow from a workflow in the other repository:
+
+```yaml
+name: PowerShell
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  powershell:
+    uses: scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.1.0
+    with:
+      pester-path: ./Tests   # omit to skip Pester
+```
+
+Optional inputs: `path` (default `.`), `settings` (default: nearest `PSScriptAnalyzerSettings.psd1`, otherwise PSScriptAnalyzer defaults), `severity` (default `Error,Warning`), and `os` (JSON array, default `["ubuntu-latest", "windows-latest"]`). The workflow uses the checker and tool versions from the tag you pin. To adopt this repository's analyzer rules, copy [PSScriptAnalyzerSettings.psd1](PSScriptAnalyzerSettings.psd1) into the other repository's root.
 
 ## Repository layout
 
+- `.github/workflows/` — `powershell-guide-check.yml` (reusable workflow) and `powershell.yml` (this repository's CI).
+- `templates/` — material to copy into other repositories.
 - `input/` — place scripts here when using the review prompt.
 - `Tests/` — Pester tests for the guide checker.
 - `PSScriptAnalyzerSettings.psd1` — shared static-analysis settings.
@@ -74,4 +103,4 @@ The prompts are templates; fill in task requirements and constraints before use.
 
 ## Guide versions
 
-Guide filenames are stable; each guide carries its own `Guide version` header and is versioned independently. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), and releases are marked with git tags (for example, `v1.0.7`). Use `git log -- <guide>.md` or check out a tag to see an earlier revision.
+Guide filenames are stable; each guide carries its own `Guide version` header and is versioned independently. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), and releases are marked with git tags (for example, `v1.1.0`). Use `git log -- <guide>.md` or check out a tag to see an earlier revision.

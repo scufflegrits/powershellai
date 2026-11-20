@@ -25,6 +25,8 @@ Notable changes to the guides and tools are recorded here.
 - Prompts: replaced the always-multi-agent workflow with small, medium, and large tiers, and removed rules duplicated from guide §13.
 - Best-practices guide §13: added the rule not to commit, push, publish, or deploy unless asked (previously only in the prompt).
 - Documented the commands for installing the CI-pinned PSScriptAnalyzer and Pester versions.
+- Added a reusable GitHub Actions workflow (`powershell-guide-check.yml`) that other repositories can call at a pinned tag; this repository's CI now uses it.
+- Added `templates/AGENTS-powershell.md`, a section to copy into other repositories' agent instructions.
 
 ## [1.0.7] - 2026-11-19
 
