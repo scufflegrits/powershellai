@@ -11,9 +11,10 @@
 4. [Configure rules](#configure-rules)
 5. [Check compatibility](#check-compatibility)
 6. [Formatting and suppressions](#formatting-and-suppressions)
-7. [CI and agent workflow](#ci-and-agent-workflow)
-8. [Example quality test](#example-quality-test)
-9. [References](#references)
+7. [Guide audit script](#guide-audit-script)
+8. [CI and agent workflow](#ci-and-agent-workflow)
+9. [Example quality test](#example-quality-test)
+10. [References](#references)
 
 ## Role and limits
 
@@ -113,10 +114,21 @@ function Convert-TestCredential {
 
 Confirm suppression syntax and scope against the installed analyzer version. Never use suppressions to hide real security issues or to make CI appear green.
 
+## Guide audit script
+
+The repository's [Invoke-PowerShellGuideCheck.ps1](Invoke-PowerShellGuideCheck.ps1) runs PSScriptAnalyzer and adds high-confidence AST checks for parse errors, `Invoke-Expression`, and possible `+=` accumulation. Run it against a source directory or individual PowerShell file:
+
+```powershell
+./Invoke-PowerShellGuideCheck.ps1 -Path ./src
+./Invoke-PowerShellGuideCheck.ps1 -Path ./src/Get-Thing.ps1 -Settings ./PSScriptAnalyzerSettings.psd1
+```
+
+The script does not install PSScriptAnalyzer. It exits nonzero for errors and warnings; informational findings require review. This is only the mechanically checkable subset of the guide. Security intent, error quality, path containment, whether `ShouldProcess` covers every side effect, test adequacy, and whether comments accurately explain behavior still require human review and runtime tests.
+
 ## CI and agent workflow
 
 1. Inspect the repository's analyzer settings and CI entry point.
-2. Run analysis on modified files first, then on the configured project scope when appropriate.
+2. Run the guide audit on modified files first, then on the configured project scope when appropriate.
 3. Fix valid findings; document narrowly scoped exceptions.
 4. Report the PSScriptAnalyzer version, exact command, finding count/severities, and any checks that could not run.
 
