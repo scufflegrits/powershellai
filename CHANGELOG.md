@@ -5,7 +5,7 @@ Notable changes to the guides and tools are recorded here.
 ## [Unreleased]
 
 - Added `RELEASING.md` documenting the release process, including running each push as its own command.
-- Added `reference/mermaid-best-practices.md` (Mermaid conventions 1.0.11), linked from the README and `prompt-common.md`.
+- Added `reference/mermaid-best-practices.md` (Mermaid conventions 1.0.12), linked from the README and `prompt-common.md`.
 - `prompt-common.md`: the Mermaid section now requires the conventions' agent verification steps, one node per decision, side effect, or exit path, and condition labels on every branch.
 - Added optional Mermaid audit scripts in `reference/scripts/`: `audit_mermaid.py`, `opaque_svg.py`, unit tests, and probe fixtures with documented expected results.
 - Added top-down Mermaid diagrams: repository overview, AI prompt workflow, guide checker, and reusable workflow in the README; release process in `RELEASING.md`.

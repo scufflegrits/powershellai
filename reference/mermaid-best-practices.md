@@ -1,6 +1,6 @@
 # Mermaid code conventions
 
-**Guide version:** 1.0.11
+**Guide version:** 1.0.12
 
 This guide comes from a separate Mermaid diagram collection. References to that
 collection's diagrams (the MLB bracket, the orientation guide, the starter template)
@@ -775,10 +775,67 @@ extension ID/version where tested. The official npm CLI uses Puppeteer; independ
 wrappers may use Playwright (`executablePath` versus `executable_path` in their
 browser config). Never label an offline browser render an npm CLI render.
 
-No actual GitHub or VS Code preview was run for this audit. Browser dark/light
+No actual GitHub or VS Code preview was run for the r1.0.7 audit; see
+[checking GitHub's rendering](#checking-githubs-rendering) for a later GitHub check. Browser dark/light
 host simulations are useful regression checks, not certification of those hosts.
 Use GitHub's documented `info` diagram to identify its Mermaid version. VS Code
 requires the actual preview implementation/extension and its version to be recorded.
+
+### Checking GitHub's rendering
+
+GitHub renders Mermaid in the reader's browser, inside an iframe served from
+`viewscreen.githubusercontent.com`, with its own Mermaid version. The only way to
+know how a pushed diagram looks is to load the page. To check it without a person
+looking, open the public page in headless Chromium in both color schemes and
+screenshot each diagram frame:
+
+```python
+# Requires Python Playwright with Chromium. Public pages only.
+import asyncio
+from playwright.async_api import async_playwright
+
+async def main(url):
+    async with async_playwright() as pw:
+        browser = await pw.chromium.launch()
+        for scheme in ('light', 'dark'):
+            # The window must be taller than the tallest diagram; see below.
+            page = await browser.new_page(color_scheme=scheme, viewport={'width': 1280, 'height': 2400})
+            await page.goto(url, wait_until='networkidle')
+            await page.wait_for_timeout(6000)  # diagrams render after the page loads
+            frames = page.locator('iframe[src*="viewscreen"]')
+            for i in range(await frames.count()):
+                await frames.nth(i).scroll_into_view_if_needed()
+                await page.wait_for_timeout(1500)
+                await frames.nth(i).screenshot(path=f'github-{i + 1}-{scheme}.png')
+            await page.close()
+        await browser.close()
+
+asyncio.run(main('https://github.com/OWNER/REPO/blob/BRANCH/README.md'))
+```
+
+**A blank capture is not a blank diagram.** With a 900px window, two diagrams
+whose frames were 1,684 and 1,971px tall captured as empty white or dark
+rectangles even though GitHub had rendered them; the frame heights already showed
+the content was there. With a window taller than every frame, both captured
+correctly. Make the window taller than the tallest diagram, and treat a blank
+capture as a capture problem until a taller window shows otherwise. To detect one
+automatically, test only the middle of the image: the viewer's buttons sit near the
+edges, so a whole-image check still finds contrast in a blank capture.
+
+**Observed on GitHub, Nov. 20, 2026** (Mermaid version not identified): five
+top-down flowcharts rendered with their YAML front matter honored, including
+`theme: base`, `layout: dagre`, `flowchart.wrappingWidth`, a `direction` line inside
+a subgraph, named-color `classDef` styles, and a white wrapper subgraph that kept
+each diagram readable in dark mode. Their layouts matched local `mmdc 12.0.0`
+(Mermaid 12.2.0) renders. ELK, named edge IDs, `themeCSS`, and other diagram types
+were not tested.
+
+**GitHub's viewer covers the corners.** Each diagram frame carries expand and copy
+buttons at the top right and pan and zoom buttons at the bottom right, drawn over
+the diagram. In one diagram the zoom buttons partly covered a node. Readers can pan,
+but keep the most important nodes and labels away from the bottom-right corner of
+diagrams meant for GitHub. In a 1280px window the frames were 861px wide;
+diagrams wider than that were not tested.
 
 ## Audit checklist
 
@@ -1164,6 +1221,8 @@ To adapt the template:
   chain. A stale chain can collapse a subgraph to a sliver or pull the node back
   into its old box.
 - Render in the target viewer and inspect wrapping, containment, arrowheads, and contrast.
+  For a diagram on GitHub, push it and check the page itself; see
+  [checking GitHub's rendering](#checking-githubs-rendering).
 - For a diagram that may be read on a dark page, export with `-b transparent` and
   check the PNG composited over a dark color, for example
   `magick out.png -background '#0d1117' -flatten out-on-dark.png`
@@ -1330,6 +1389,12 @@ purpose (see [emoji in labels](#emoji-in-labels)).
 | 📌 | `U+1F4CC` | Important reference |
 
 ## Revision history
+
+**1.0.12 (Nov. 20, 2026).** New [checking GitHub's rendering](#checking-githubs-rendering)
+section: a headless Chromium method for capturing GitHub-rendered diagrams, the
+blank-capture pitfall with frames taller than the window, a dated record of what
+GitHub honored in five dagre flowcharts, and the viewer buttons that cover the
+corners. Linked from renderer evidence and the review checklist.
 
 **1.0.11 (Nov. 20, 2026).** Added the audit tools in [scripts/](scripts/README.md):
 `audit_mermaid.py` with its browser checks, unit tests, and probe fixtures, plus
