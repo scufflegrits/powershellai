@@ -1,5 +1,7 @@
-# PowerShell module and script build output
+# Local trash folder for retired files (never published)
 99_Archive/
+
+# PowerShell module and script build output
 [Bb]uild/
 [Oo]ut/
 [Pp]ublish/

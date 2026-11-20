@@ -1,6 +1,6 @@
 # PowerShell Best Practices
 
-**Guide version:** 1.0.6
+**Guide version:** 1.0.7
 
 **Applies to:** PowerShell 7+ (cross-platform) unless a project explicitly targets Windows PowerShell 5.1.
 
@@ -48,7 +48,7 @@
 - **Respect PowerShell 5.1 vs. PowerShell 7+ differences:** Do not assume PowerShell 7+ syntax or cmdlet behavior works in Windows PowerShell 5.1 (`powershell.exe`). Key differences to account for when targeting dual compatibility:
   - **Operators:** Ternary (`$a ? $b : $c`), null-coalescing (`$a ?? $b`), null-conditional (`${a}?.Prop`), and pipeline chain operators (`&&`, `||`) are **PowerShell 7+ only**.
   - **Platform variables:** `$IsWindows`, `$IsLinux`, and `$IsMacOS` exist automatically in PowerShell 6.0+/7+, but are undefined (`$null`) in Windows PowerShell 5.1. If supporting 5.1, check `$PSVersionTable.PSEdition -eq 'Desktop'` or `[System.Runtime.InteropServices.RuntimeInformation]`.
-  - **Default file encodings:** PowerShell 6.0+/7+ standardizes on UTF-8 without BOM (`utf8` / `utf8NoBOM`) across file cmdlets (`Get-Content`, `Set-Content`, `Out-File`, `Export-Csv`). In Windows PowerShell 5.1, defaults vary by cmdlet: `Set-Content`/`Add-Content` use the system active code page (`Default`, e.g., Windows-1252), `Out-File` and redirection (`>`, `>>`) use UTF-16LE (`Unicode`), and `Export-Csv` uses ASCII. Always pass `-Encoding` explicitly when file portability matters (see Microsoft Learn: *about_Character_Encoding*).
+  - **Default file encodings:** PowerShell 6+ defaults text output to UTF-8 without BOM, but read behavior and individual cmdlets can differ. In Windows PowerShell 5.1, defaults vary by cmdlet: `Set-Content`/`Add-Content` use the system active code page (`Default`, e.g., Windows-1252), `Out-File` and redirection (`>`, `>>`) use UTF-16LE (`Unicode`), and `Export-Csv` uses ASCII. Always pass `-Encoding` explicitly when file portability matters (see Microsoft Learn: *about_Character_Encoding*).
   - **JSON depth behavior:** `ConvertTo-Json` defaults to `-Depth 2` across PowerShell versions and can truncate deeply nested objects when input exceeds that depth; PowerShell 7.1+ emits a warning when the input object exceeds the specified `-Depth` (see Microsoft Learn: *ConvertTo-Json*). `ConvertFrom-Json` added `-Depth` in PowerShell 6.2 (defaulting to `1024`); Windows PowerShell 5.1 `ConvertFrom-Json` does not have a `-Depth` parameter.
   - **Parameter & cmdlet enhancements:** Features such as `[ValidateScript(..., ErrorMessage = '...')]` (PowerShell 6.0+) and multi-segment `Join-Path -Path $a -ChildPath $b, $c` (PowerShell 6.0+) are not available in Windows PowerShell 5.1.
 
@@ -261,7 +261,7 @@ function Remove-StaleLog {
   ```
 
 - **Use `$PSCmdlet.ThrowTerminatingError()` inside advanced functions** when you want an error to terminate the pipeline while still respecting the caller's `-ErrorAction` preference and populating a structured `ErrorRecord` (`ErrorId`, `ErrorCategory`, `TargetObject`). When a caller already has sufficient context from the original error, `throw` (bare rethrow) preserves the original `ErrorRecord` and stack trace intact.
-- **Ensure deterministic non-zero exit codes in CI / automation scripts:** In non-interactive automation (`pwsh -NonInteractive -File .\script.ps1`), unhandled terminating errors normally exit with a non-zero code, whereas non-terminating errors or custom error handling may leave `$LASTEXITCODE` unset (`0`). When a script encounters a fatal error and should fail the CI job, throw a terminating error or explicitly exit with a non-zero status code (`exit 1`) after cleanup.
+- **Ensure deterministic non-zero exit codes in CI / automation scripts:** When launched with `pwsh -NonInteractive -File .\script.ps1`, an unhandled terminating error normally gives the PowerShell process a non-zero exit code. `$LASTEXITCODE` is different: it records the exit status of the last native executable and may be unset if no native executable has run. If a script catches and handles a fatal error but still needs to fail the CI job, explicitly exit with a non-zero status code (for example, `exit 1`) after cleanup.
 - **Never use empty `catch {}` blocks or blanket `-ErrorAction SilentlyContinue`:** If an error is expected and intentionally ignored (e.g., probing whether an optional registry key exists), document *why* in a comment and narrow `-ErrorAction Ignore` to that single cmdlet.
 - **Always clean up resources in `finally`:** Close file streams, dispose .NET objects (`IDisposable`), remove temporary files, and restore modified environment/location state (`Push-Location` / `Pop-Location`) inside a `finally` block so cleanup executes even on exceptions or `Ctrl+C`.
 
@@ -388,7 +388,7 @@ MyModule/
 - **Honest verification reporting:**
   - Run only checks available in the environment. Never install modules or tools implicitly without approval.
   - Report the exact commands executed and their actual pass/fail counts; explicitly disclose if tests or linting could not run.
-- See the companion testing guide (`powershell-testing-pester-psscriptanalyzer-r1.0.0.md`, or the matching companion revision in your repository) for detailed configuration and examples.
+- See [PowerShell Testing with Pester](powershell-pester-testing.md) and [PowerShell Static Analysis with PSScriptAnalyzer](powershell-psscriptanalyzer.md) for detailed configuration and examples.
 
 ## 11. Documentation and delivery
 
@@ -414,7 +414,8 @@ MyModule/
     Reads JSON audit files from the specified input directory, validates schema
     fields, and writes a consolidated summary JSON file to the output path.
     Existing output files are overwritten only when -Overwrite is specified
-    and confirmed via ShouldProcess (-WhatIf / -Confirm). Intended for
+    and the write passes ShouldProcess. -WhatIf previews the action; a prompt
+    depends on ConfirmImpact and the caller's confirmation preferences. Intended for
     single-process execution; use atomic staging/replace for concurrent writers.
 
 .PARAMETER InputDirectory
@@ -585,12 +586,12 @@ AI agents working in a PowerShell repository must follow this workflow:
 
 ### Versioning policy
 
-- **Format (`rMAJOR.MINOR.PATCH`):** Filenames carry an `rX.Y.Z` suffix (e.g., `powershell-best-practices-r1.0.6.md`) matching the `Guide version` header inside the document.
-  - **MAJOR (`rX.0.0`):** Fundamental restructuring, breaking changes to agent workflow rules, or shifts in baseline supported PowerShell editions.
-  - **MINOR (`r1.Y.0`):** New sections, new rules, or substantive expansions of existing topics.
-  - **PATCH (`r1.0.Z`):** Clarifications, technical errata fixes, nuance adjustments, and updated examples without altering core normative requirements.
-- **Bump on every review cycle:** Every review and revision cycle bumps the guide version (incrementing `PATCH`, `MINOR`, or `MAJOR` as appropriate) and issues a corresponding `rX.Y.Z` file so revisions remain unambiguously traceable.
-- **Recording updates:** Each revision updates the `Guide version` header, updates the companion file reference if a matching companion revision is published, and records changes in the repository's changelog or release notes.
+- **Format (`MAJOR.MINOR.PATCH`):** The `Guide version` header inside the document carries the version. Filenames are stable so links and git history survive revisions.
+  - **MAJOR (`X.0.0`):** Fundamental restructuring, breaking changes to agent workflow rules, or shifts in baseline supported PowerShell editions.
+  - **MINOR (`1.Y.0`):** New sections, new rules, or substantive expansions of existing topics.
+  - **PATCH (`1.0.Z`):** Clarifications, technical errata fixes, nuance adjustments, and updated examples without altering core normative requirements.
+- **Bump on every review cycle:** Every review and revision cycle bumps the guide version (incrementing `PATCH`, `MINOR`, or `MAJOR` as appropriate).
+- **Recording updates:** Each revision updates the `Guide version` header and records changes in the repository's changelog. Tag releases in git (for example, `v1.0.7`) so earlier revisions remain retrievable without keeping copies in the working tree.
 
 ### Authoritative sources
 
