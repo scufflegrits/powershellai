@@ -4,6 +4,7 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- README: explained that the Mermaid conventions exist so AI agents diagram scripts consistently, making unhandled paths easier to find during code review.
 - Added `RELEASING.md` documenting the release process, including running each push as its own command.
 - Added `reference/mermaid-best-practices.md` (Mermaid conventions 1.0.12), linked from the README and `prompt-common.md`.
 - `prompt-common.md`: the Mermaid section now requires the conventions' agent verification steps, one node per decision, side effect, or exit path, and condition labels on every branch.

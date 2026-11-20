@@ -143,7 +143,7 @@ flowchart TD
 - [PowerShell Best Practices](powershell-best-practices.md) — scripting, modules, security, testing, documentation, and AI-agent practices.
 - [Pester testing guide](powershell-pester-testing.md) — Pester v5 test design, mocks, discovery, TestDrive, coverage, and CI.
 - [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md) — analyzer configuration, compatibility checks, formatting, suppressions, and CI.
-- [Mermaid conventions](reference/mermaid-best-practices.md) — how to write, render, and verify the Mermaid diagrams in this repository.
+- [Mermaid conventions](reference/mermaid-best-practices.md) — how AI agents draw, render, and verify flowcharts of PowerShell scripts. Consistent diagrams make unhandled branches, skipped cleanup, and side effects that bypass `-WhatIf` easier to spot during review. This README's diagrams follow them too.
 - [PSScriptAnalyzer](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/using-scriptanalyzer?view=ps-modules) — the PowerShell linter and static analyzer used by this project.
 - [Guide check script](Invoke-PowerShellGuideCheck.ps1) — runs PSScriptAnalyzer and supplemental AST checks for selected guide rules.
 - [Shared AI prompt](prompt-common.md) — workflow tiers scaled to task size, verification, Mermaid diagrams, and reporting; builds on §13 of the guide.
@@ -351,7 +351,7 @@ flowchart TD
 
 - `.github/workflows/` — `powershell-guide-check.yml` (reusable workflow) and `powershell.yml` (this repository's CI).
 - `templates/` — material to copy into other repositories.
-- `reference/` — supporting guides, such as the Mermaid diagram conventions, and optional Mermaid audit scripts in `reference/scripts/`.
+- `reference/` — supporting material for AI-assisted code review. The Mermaid conventions make agents diagram a script the same way every time: one node per decision, side effect, or exit path, with every branch labeled, and each diagram rendered and checked before it is delivered. A reviewer can then compare the diagram with the code to find paths the code doesn't handle. The diagram is a review aid, not a substitute for tests. `reference/scripts/` holds an optional tool that audits these diagrams.
 - `input/` — place scripts here when using the review prompt.
 - `Tests/` — Pester tests for the guide checker.
 - `PSScriptAnalyzerSettings.psd1` — shared static-analysis settings.
