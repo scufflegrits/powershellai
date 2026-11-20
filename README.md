@@ -16,7 +16,7 @@ This repository provides practical standards for writing, reviewing, testing, an
 - [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md) — analyzer configuration, compatibility checks, formatting, suppressions, and CI.
 - [PSScriptAnalyzer](https://learn.microsoft.com/en-us/powershell/utility-modules/psscriptanalyzer/using-scriptanalyzer?view=ps-modules) — the PowerShell linter and static analyzer used by this project.
 - [Guide check script](Invoke-PowerShellGuideCheck.ps1) — runs PSScriptAnalyzer and supplemental AST checks for selected guide rules.
-- [Shared AI prompt](prompt-common.md) — agent coordination, safety, verification, Mermaid diagrams, and reporting.
+- [Shared AI prompt](prompt-common.md) — workflow tiers scaled to task size, verification, Mermaid diagrams, and reporting; builds on §13 of the guide.
 - [AI script review prompt](prompt-review.md) — review an existing script, typically supplied under `input/`.
 - [AI script creation prompt](prompt-create.md) — design and create a script from requirements.
 

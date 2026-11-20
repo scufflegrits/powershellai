@@ -1,6 +1,6 @@
 # PowerShell Best Practices
 
-**Guide version:** 1.0.7
+**Guide version:** 1.1.0
 
 **Applies to:** PowerShell 7+ (cross-platform) unless a project explicitly targets Windows PowerShell 5.1.
 
@@ -571,7 +571,7 @@ AI agents working in a PowerShell repository must follow this workflow:
 1. **Inspect first:** Read `AGENTS.md`, `README.md`, `.editorconfig`, `PSScriptAnalyzerSettings.psd1`, module manifests, and CI configs. Confirm target PowerShell version(s), OS platforms, and test commands before editing.
 2. **Trace before changing:** Inspect callers, parameter sets, output types, and downstream consumers before modifying an interface. Ask for clarification only when a material requirement cannot be resolved from the repo.
 3. **Plan a minimal diff:** Identify the exact files and behaviors to change. Do not refactor unrelated code, reformat untouched files, or alter module manifests unnecessarily.
-4. **Edit safely:** Preserve existing user work. Never commit secrets, weaken security settings, or execute destructive/remote commands without explicit authorization.
+4. **Edit safely:** Preserve existing user work. Never commit secrets, weaken security settings, or execute destructive/remote commands without explicit authorization. Do not commit, push, publish, or deploy unless explicitly asked.
 5. **Audit the diff:** Verify there are no unjustified cmdlet aliases, unquoted/unvalidated paths, `Invoke-Expression` calls, `+=` array loops, `$value -eq $null` inversions, PS 7-only syntax in PS 5.1 targets, or accidental formatting churn.
 6. **Verify proportionately:** Run `Invoke-ScriptAnalyzer` and Pester tests when available in the environment. Never fabricate test output or claim an unrun check passed.
 7. **Report precisely:** Summarize what changed, which files were modified, the exact verification commands run and their outcomes, and any remaining limitations or assumptions.

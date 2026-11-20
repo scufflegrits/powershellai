@@ -4,6 +4,8 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-19
+
 - Added the Pester and PSScriptAnalyzer focused guides.
 - Added `Invoke-PowerShellGuideCheck.ps1` for PSScriptAnalyzer and selected AST checks.
 - Added repository navigation, analyzer settings, and Pester tests for the guide-check script.
@@ -20,6 +22,8 @@ Notable changes to the guides and tools are recorded here.
 - Guide checker: findings print as one `path:line:column: [Severity] Rule: message` line each, so output does not depend on console width.
 - Tests: moved `BeforeEach` inside `Describe` (Pester v5 rejects it at the file root) and added a scoped, justified suppression for Pester `BeforeAll` variables.
 - Analyzer settings now enable PowerShell 7.0 syntax compatibility and brace, indentation, whitespace, and alignment rules, replacing entries that only re-enabled default rules.
+- Prompts: replaced the always-multi-agent workflow with small, medium, and large tiers, and removed rules duplicated from guide §13.
+- Best-practices guide §13: added the rule not to commit, push, publish, or deploy unless asked (previously only in the prompt).
 - Documented the commands for installing the CI-pinned PSScriptAnalyzer and Pester versions.
 
 ## [1.0.7] - 2026-11-19

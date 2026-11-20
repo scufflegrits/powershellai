@@ -27,7 +27,7 @@ Design and implement a maintainable PowerShell script that satisfies the task an
 5. Add focused Pester tests for success, boundary cases, failure paths, and side-effect guards. Use mocks and `$TestDrive` to keep tests isolated.
 6. Run PSScriptAnalyzer and the repository guide-check script where available; fix relevant findings rather than suppressing them broadly.
 7. Use a Mermaid flowchart for complex control flow as described in `prompt-common.md`.
-8. Have independent agents verify the completed implementation and tests. Resolve findings and repeat verification after changes.
+8. Verify the completed implementation and tests using the workflow tier chosen in `prompt-common.md`. Resolve findings and repeat verification after changes.
 9. Review the final diff and report files created, behavior, checks run, results, and limitations.
 
 ## Creation checklist
@@ -40,7 +40,7 @@ Design and implement a maintainable PowerShell script that satisfies the task an
 - [ ] Security and side effects are handled safely
 - [ ] Focused Pester tests were added where appropriate
 - [ ] PSScriptAnalyzer and guide checks were run where available
-- [ ] Multiple independent agents verified the final changes
+- [ ] Final changes were verified as the chosen workflow tier requires
 - [ ] Final diff, results, assumptions, and limitations were reported
 
 Mark items complete only after doing them. Mark non-applicable items `N/A` with a brief reason, or blocked items `Blocked` with what is needed.
