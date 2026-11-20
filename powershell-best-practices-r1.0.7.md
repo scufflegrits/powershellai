@@ -388,7 +388,7 @@ MyModule/
 - **Honest verification reporting:**
   - Run only checks available in the environment. Never install modules or tools implicitly without approval.
   - Report the exact commands executed and their actual pass/fail counts; explicitly disclose if tests or linting could not run.
-- See the companion testing guide (`powershell-testing-pester-psscriptanalyzer-r1.0.0.md`, or the matching companion revision in your repository) for detailed configuration and examples.
+- See [PowerShell Testing with Pester and PSScriptAnalyzer](powershell-testing-pester-psscriptanalyzer-r1.0.7.md) for detailed configuration and examples.
 
 ## 11. Documentation and delivery
 
