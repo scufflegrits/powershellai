@@ -4,6 +4,69 @@ Other repositories pin this one by tag: they call `powershell-guide-check.yml@vX
 
 Run each push (`git push`) as its own command. Do not chain it with commits, tagging, or CI watching. Each step that publishes something can then be seen and approved on its own, and AI agents' permission checks may block a combined command that includes a push.
 
+## Overview
+
+```mermaid
+---
+config:
+  # The only built-in theme meant to be customized.
+  theme: base
+  # Pin classic shapes so class styles target stable elements.
+  look: classic
+  # dagre: GitHub's default flowchart engine; ELK support there is undocumented.
+  layout: dagre
+  # Quoted hex: these values feed Mermaid's color calculations.
+  themeVariables:
+    darkMode: false
+    background: "#ffffff"
+    primaryTextColor: "#191970"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+  flowchart:
+    # Labels break only at <br/>; the ~200px default split file names mid-word.
+    wrappingWidth: 300
+---
+%% The release steps in RELEASING.md. The tag is pushed only after CI passes.
+flowchart TD
+  subgraph SG_CARD[" "]
+    %% dagre lays a subgraph out left to right unless told otherwise.
+    direction TD
+    CHANGELOG_ENTRIES["Changelog entries under Unreleased"]
+    BUMP_GUIDES["Bump changed guide versions"]
+    RELEASE_COMMIT["Release commit: version heading<br/>and pinned tag references"]
+    LOCAL_CHECKS["Run checks locally"]
+    TAG_LOCAL["Tag locally"]
+    PUSH_BRANCH["Push the branch only"]
+    CI_GREEN{"CI passes on<br/>Ubuntu and Windows?"}
+    FIX_RETAG["Fix, commit, and move<br/>the unpushed tag"]
+    PUSH_TAG["Push the tag<br/>never move it afterward"]
+    GITHUB_RELEASE["gh release create<br/>notes from CHANGELOG.md"]
+
+    CHANGELOG_ENTRIES --> BUMP_GUIDES
+    BUMP_GUIDES --> RELEASE_COMMIT
+    RELEASE_COMMIT --> LOCAL_CHECKS
+    LOCAL_CHECKS --> TAG_LOCAL
+    TAG_LOCAL --> PUSH_BRANCH
+    PUSH_BRANCH --> CI_GREEN
+    CI_GREEN -->|"no"| FIX_RETAG
+    FIX_RETAG -->|"push again"| PUSH_BRANCH
+    CI_GREEN -->|"yes"| PUSH_TAG
+    PUSH_TAG --> GITHUB_RELEASE
+  end
+
+  classDef nodeDoc fill:aliceblue,stroke:steelblue,color:midnightblue
+  classDef nodeTool fill:honeydew,stroke:seagreen,color:darkgreen
+  classDef nodeDecision fill:lemonchiffon,stroke:darkgoldenrod,color:saddlebrown
+  classDef nodeOutcomeFail fill:mistyrose,stroke:firebrick,color:maroon
+  classDef groupWrapper fill:white,stroke:none
+
+  class CHANGELOG_ENTRIES,BUMP_GUIDES,RELEASE_COMMIT nodeDoc
+  class LOCAL_CHECKS,TAG_LOCAL,PUSH_BRANCH,PUSH_TAG,GITHUB_RELEASE nodeTool
+  class CI_GREEN nodeDecision
+  class FIX_RETAG nodeOutcomeFail
+  class SG_CARD groupWrapper
+```
+
 ## Steps
 
 1. **Record changes as they land.** Add entries under `## [Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
