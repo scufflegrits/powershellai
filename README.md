@@ -98,9 +98,10 @@ Optional inputs: `path` (default `.`), `settings` (default: nearest `PSScriptAna
 - `Tests/` — Pester tests for the guide checker.
 - `PSScriptAnalyzerSettings.psd1` — shared static-analysis settings.
 - `CHANGELOG.md` — notable guide and tool changes.
+- `RELEASING.md` — steps for tagging and publishing a release.
 
 The prompts are templates; fill in task requirements and constraints before use. The review prompt should not modify a script unless the requested task authorizes updates.
 
 ## Guide versions
 
-Guide filenames are stable; each guide carries its own `Guide version` header and is versioned independently. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), and releases are marked with git tags (for example, `v1.1.0`). Use `git log -- <guide>.md` or check out a tag to see an earlier revision.
+Guide filenames are stable; each guide carries its own `Guide version` header and is versioned independently. Changes are recorded in [CHANGELOG.md](CHANGELOG.md), and releases are marked with git tags (for example, `v1.1.0`). Use `git log -- <guide>.md` or check out a tag to see an earlier revision. To cut a release, follow [RELEASING.md](RELEASING.md).

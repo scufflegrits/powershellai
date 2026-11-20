@@ -4,6 +4,8 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- Added `RELEASING.md` documenting the release process.
+
 ## [1.1.0] - 2026-11-19
 
 - Added the Pester and PSScriptAnalyzer focused guides.
