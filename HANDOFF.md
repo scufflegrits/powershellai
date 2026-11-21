@@ -35,6 +35,7 @@ If the second command lists any commits, this file may be out of date: read thos
 - Checker boundary tests cover settings precedence, `.git` directory/file boundaries, and function scopes. Array-append detection now keeps script-level and function-local variable names separate; it remains a lexical heuristic rather than runtime type or control-flow analysis.
 - Consumer template local commands now use the release-pinned checker and explicitly import the pinned analyzer/Pester versions. Seven consumer scenarios passed on the Debian 13 lab VM: clean code, lint failure, settings discovery, parser failure, informational findings, and passing/failing Pester tests. Downloaded tools stay outside the consumer repository.
 - `examples/worked-review/` contains a read-only log-counting review. The same eight tests show four failures on the original and pass on the correction. The repository workflow now uses `pester-path: .` to discover checker and example tests together (31 total); the intentional original failures are run only through an explicit test-container override.
+- `examples/pre-production-review/README.md` documents the intake-to-handoff workflow for ignored `input/` scripts. It supplies review/fix requests and report expectations, without implementing a watcher, report generator, or deployment automation.
 
 ## Rules the owner has set
 

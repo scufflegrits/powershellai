@@ -86,6 +86,7 @@ Colors are the same in every diagram: blue for documents and prompts, green for 
 Pick the path that matches what you are doing:
 
 - **Seeing a complete example first.** Follow the [worked script review](examples/worked-review/README.md): inspect a small script, read the findings, compare the correction, and run the same tests against both versions.
+- **Reviewing a test-environment script before production.** Follow the [pre-production review workflow](examples/pre-production-review/README.md) after placing a copy in `input/`. It explains what to ask the AI, which checks run, what the report should contain, and how to verify a correction before promotion.
 - **Writing or reviewing PowerShell yourself.** Read [PowerShell Best Practices](powershell-best-practices.md) first. It is the standard everything else in this repository is built on. Read the [Pester testing guide](powershell-pester-testing.md) when you add tests, and the [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md) when you set up automated checks.
 - **Asking an AI to review or write a script.** Give the AI [prompt-common.md](prompt-common.md) together with either [prompt-review.md](prompt-review.md) or [prompt-create.md](prompt-create.md). First replace the placeholders in angle brackets, such as `<what the script should do>`: the prompts are templates, and the AI cannot guess your requirements. The review prompt does not change your script unless you ask it to.
 - **Changing this repository.** Install the [requirements](#requirements), then run the [checks](#check-your-code-with-the-linter) and [tests](#run-the-tests) before you push.
@@ -392,6 +393,7 @@ flowchart TD
 - `input/`: put a script here when you ask an AI to review it with the review prompt, so the AI knows which file to look at. Git ignores everything in this folder, because a script under review may contain internal names or secrets that must not reach this public repository.
 - `Tests/`: Pester tests for the check script (not for your scripts).
 - `examples/worked-review/`: a complete review walkthrough with original and corrected scripts and shared behavior tests.
+- `examples/pre-production-review/`: instructions for taking a script from `input/` through an AI review, authorized fixes, lab verification, and a production handoff.
 - `PSScriptAnalyzerSettings.psd1`: which analyzer rules this repository enforces, such as consistent indentation and brace placement. Copy it to another repository to apply the same rules there.
 - `CHANGELOG.md`: what changed in each version, so you can see what an upgrade brings before you take it.
 - `RELEASING.md`: maintainer steps for publishing a new version safely.

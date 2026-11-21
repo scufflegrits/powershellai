@@ -4,6 +4,7 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- Added a pre-production review walkthrough covering scripts imported into `input/`, review requests and reports, isolated correction/tests, environment validation, and the distinction between local review and production approval.
 - Added a worked log-summary review with original and corrected scripts, shared Pester tests, and a walkthrough linked from "Start here"; CI now discovers both the checker tests and example tests.
 - Consumer instructions now download and run the release-pinned guide checker locally, select the pinned analyzer and Pester versions explicitly, and propagate failing checks instead of showing PSScriptAnalyzer alone.
 - Guide checker: array-append detection now keeps script and function variable names separate, preventing false findings on unrelated counters. Added regression tests for sibling and nested functions, nearest and explicit settings, and repository boundaries with `.git` directories or files.
