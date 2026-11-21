@@ -163,6 +163,23 @@ function Test-InsideLoop {
     return $false
 }
 
+function Get-GuideVariableKey {
+    # Function definitions have distinct local variables, even when their names
+    # match. Use the nearest function's source offset, or -1 for script-level code.
+    param([System.Management.Automation.Language.AssignmentStatementAst] $Assignment)
+
+    $scopeOffset = -1
+    $current = $Assignment.Parent
+    while ($null -ne $current) {
+        if ($current -is [System.Management.Automation.Language.FunctionDefinitionAst]) {
+            $scopeOffset = $current.Extent.StartOffset
+            break
+        }
+        $current = $current.Parent
+    }
+    return ('{0}:{1}' -f $scopeOffset, $Assignment.Left.VariablePath.UserPath)
+}
+
 foreach ($file in $sourceFiles) {
     $tokens = $null
     $parseErrors = $null
@@ -185,8 +202,8 @@ foreach ($file in $sourceFiles) {
         }
         $assignments = @($ast.FindAll($isVariableAssignment, $true))
 
-        # Only variables initialized as arrays are tracked, so numeric counters and
-        # string concatenation using += are not reported.
+        # Track array initializations separately for the script and each function.
+        # This is a lexical heuristic, not runtime type or control-flow analysis.
         $arrayVariables = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
         foreach ($assignment in $assignments) {
             $rightExpression = if ($assignment.Right -is [System.Management.Automation.Language.CommandExpressionAst]) {
@@ -195,14 +212,14 @@ foreach ($file in $sourceFiles) {
             if ($assignment.Operator -eq [System.Management.Automation.Language.TokenKind]::Equals -and
                 ($rightExpression -is [System.Management.Automation.Language.ArrayExpressionAst] -or
                 $rightExpression -is [System.Management.Automation.Language.ArrayLiteralAst])) {
-                $null = $arrayVariables.Add($assignment.Left.VariablePath.UserPath)
+                $null = $arrayVariables.Add((Get-GuideVariableKey -Assignment $assignment))
             }
         }
 
         foreach ($assignment in $assignments) {
             $variableName = $assignment.Left.VariablePath.UserPath
             if ($assignment.Operator -eq [System.Management.Automation.Language.TokenKind]::PlusEquals -and
-                $arrayVariables.Contains($variableName) -and
+                $arrayVariables.Contains((Get-GuideVariableKey -Assignment $assignment)) -and
                 (Test-InsideLoop -Node $assignment)) {
                 $message = "Array '$variableName' is appended with '+=' inside a loop, which copies the array on every iteration. Assign the loop output directly or use a generic list."
                 $findings.Add((ConvertTo-GuideFinding -ScriptName $file.FullName -Extent $assignment.Extent -RuleName 'GuideAvoidArrayAppend' -Severity 'Information' -Message $message))

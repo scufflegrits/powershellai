@@ -205,6 +205,8 @@ Each finding is one line: `file:line:column: [Severity] Rule: message`.
 
 Which rules apply comes from `PSScriptAnalyzerSettings.psd1`. The script uses the nearest one, searching upward from the folder you check to the repository root, unless you name a file with `-Settings`.
 
+The array-append check keeps variable names separate across functions to avoid confusing an array with an unrelated counter. It does not track runtime types or control flow.
+
 The check cannot tell whether your script does what you intended, or whether it is safe in your environment. That still needs tests and review.
 
 ```mermaid

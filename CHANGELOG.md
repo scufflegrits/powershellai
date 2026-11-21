@@ -4,6 +4,7 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- Guide checker: array-append detection now keeps script and function variable names separate, preventing false findings on unrelated counters. Added regression tests for sibling and nested functions, nearest and explicit settings, and repository boundaries with `.git` directories or files.
 - CI now runs the Mermaid audit tool's unit tests in a separate Ubuntu job using Python 3.13 and pinned PyYAML 6.0.4; browser rendering remains a manual check.
 - Added `HANDOFF.md` so a maintainer can resume work from another machine: how to check the current state, working rules, and setup tips.
 - README: every section now explains plainly why it exists, with a short glossary of terms; clarified that the Pester tests check the check script, not your scripts; corrected where tool versions are pinned.

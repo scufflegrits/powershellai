@@ -91,6 +91,52 @@ Describe 'Invoke-PowerShellGuideCheck.ps1' {
         ($output | Out-String) | Should -Not -Match 'GuideAvoidArrayAppend'
     }
 
+    It 'reports <Expected> array findings for <Case>' -ForEach @(
+        @{
+            Case     = 'an array and counter in sibling functions'
+            Source   = 'function Get-Items { $items = @(); $items }; function Get-Total { $items = 0; foreach ($n in 1..3) { $items += $n }; $items }'
+            Expected = 0
+        }
+        @{
+            Case     = 'a script array and function-local counter'
+            Source   = '$items = @(); function Get-Total { $items = 0; foreach ($n in 1..3) { $items += $n }; $items }'
+            Expected = 0
+        }
+        @{
+            Case     = 'a function array and script-level counter'
+            Source   = 'function Get-Items { $items = @(); $items }; $items = 0; foreach ($n in 1..3) { $items += $n }'
+            Expected = 0
+        }
+        @{
+            Case     = 'an outer array and nested function counter'
+            Source   = 'function Get-Items { $items = @(); function Get-Total { $items = 0; foreach ($n in 1..3) { $items += $n }; $items }; $items }'
+            Expected = 0
+        }
+        @{
+            Case     = 'a function defined inside a loop without its own loop'
+            Source   = 'foreach ($n in 1..3) { function Get-Items { $items = @(); $items += 1; $items } }'
+            Expected = 0
+        }
+        @{
+            Case     = 'an array loop inside a function'
+            Source   = 'function Get-Items { $items = @(); foreach ($n in 1..3) { $items += $n }; $items }'
+            Expected = 1
+        }
+        @{
+            Case     = 'a function array loop beside an unrelated counter loop'
+            Source   = 'function Get-Items { $items = @(); foreach ($n in 1..3) { $items += $n }; $items }; function Get-Total { $items = 0; foreach ($n in 1..3) { $items += $n }; $items }'
+            Expected = 1
+        }
+    ) {
+        $fixture = Join-Path $TestDrive 'FunctionScopes.ps1'
+        Set-Content -LiteralPath $fixture -Value $Source -Encoding utf8
+
+        $output = & pwsh -NoProfile -NonInteractive -File $checkScript -Path $fixture -Severity Information 2>&1
+
+        $LASTEXITCODE | Should -Be 0
+        @($output | Select-String -SimpleMatch 'GuideAvoidArrayAppend').Count | Should -Be $Expected
+    }
+
     It 'finds the settings file by walking up from the target path' {
         $projectRoot = Join-Path $TestDrive 'project'
         $sourceDirectory = Join-Path $projectRoot 'src'
@@ -110,6 +156,71 @@ Describe 'Invoke-PowerShellGuideCheck.ps1' {
 
         $LASTEXITCODE | Should -Be 0
         ($output | Out-String) | Should -Match ([regex]::Escape((Join-Path $projectRoot 'PSScriptAnalyzerSettings.psd1')))
+    }
+
+    It 'uses the nearest settings for a <TargetKind> target' -ForEach @(
+        @{ TargetKind = 'file' }
+        @{ TargetKind = 'directory' }
+    ) {
+        $projectRoot = Join-Path $TestDrive 'nearest-project'
+        $sourceDirectory = Join-Path $projectRoot 'src'
+        $null = New-Item -ItemType Directory -Path $sourceDirectory -Force
+        $null = New-Item -ItemType Directory -Path (Join-Path $projectRoot '.git') -Force
+        $rootSettings = Join-Path $projectRoot 'PSScriptAnalyzerSettings.psd1'
+        $nearestSettings = Join-Path $sourceDirectory 'PSScriptAnalyzerSettings.psd1'
+        Set-Content -LiteralPath $rootSettings -Value "@{ IncludeRules = @('PSAvoidUsingInvokeExpression') }" -Encoding utf8
+        Set-Content -LiteralPath $nearestSettings -Value "@{ ExcludeRules = @('PSAvoidUsingInvokeExpression') }" -Encoding utf8
+        $fixture = Join-Path $sourceDirectory 'UsesIex.ps1'
+        Set-Content -LiteralPath $fixture -Value "Invoke-Expression 'Get-Date'" -Encoding utf8
+        $target = if ($TargetKind -eq 'file') { $fixture } else { $sourceDirectory }
+
+        $output = & pwsh -NoProfile -NonInteractive -File $checkScript -Path $target 2>&1
+
+        $LASTEXITCODE | Should -Be 0
+        ($output | Out-String) | Should -Match ([regex]::Escape($nearestSettings))
+        ($output | Out-String) | Should -Not -Match 'PSAvoidUsingInvokeExpression'
+    }
+
+    It 'uses explicit settings instead of the nearest settings' {
+        $projectRoot = Join-Path $TestDrive 'explicit-project'
+        $null = New-Item -ItemType Directory -Path $projectRoot
+        $nearestSettings = Join-Path $projectRoot 'PSScriptAnalyzerSettings.psd1'
+        $explicitSettings = Join-Path $TestDrive 'ExplicitSettings.psd1'
+        Set-Content -LiteralPath $nearestSettings -Value "@{ ExcludeRules = @('PSAvoidUsingInvokeExpression') }" -Encoding utf8
+        Set-Content -LiteralPath $explicitSettings -Value "@{ IncludeRules = @('PSAvoidUsingInvokeExpression') }" -Encoding utf8
+        $fixture = Join-Path $projectRoot 'UsesIex.ps1'
+        Set-Content -LiteralPath $fixture -Value "Invoke-Expression 'Get-Date'" -Encoding utf8
+
+        $output = & pwsh -NoProfile -NonInteractive -File $checkScript -Path $fixture -Settings $explicitSettings 2>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match ([regex]::Escape($explicitSettings))
+        ($output | Out-String) | Should -Match 'PSAvoidUsingInvokeExpression'
+    }
+
+    It 'ignores settings above a repository with a .git <MarkerKind>' -ForEach @(
+        @{ MarkerKind = 'directory' }
+        @{ MarkerKind = 'file' }
+    ) {
+        $parentDirectory = Join-Path $TestDrive "outside-repository-$MarkerKind"
+        $projectRoot = Join-Path $parentDirectory 'project'
+        $sourceDirectory = Join-Path $projectRoot 'src'
+        $null = New-Item -ItemType Directory -Path $sourceDirectory -Force
+        $marker = Join-Path $projectRoot '.git'
+        if ($MarkerKind -eq 'directory') {
+            $null = New-Item -ItemType Directory -Path $marker
+        } else {
+            Set-Content -LiteralPath $marker -Value 'gitdir: ../worktree-metadata' -Encoding utf8
+        }
+        Set-Content -LiteralPath (Join-Path $parentDirectory 'PSScriptAnalyzerSettings.psd1') -Value "@{ ExcludeRules = @('PSAvoidUsingInvokeExpression') }" -Encoding utf8
+        $fixture = Join-Path $sourceDirectory 'UsesIex.ps1'
+        Set-Content -LiteralPath $fixture -Value "Invoke-Expression 'Get-Date'" -Encoding utf8
+
+        $output = & pwsh -NoProfile -NonInteractive -File $checkScript -Path $fixture 2>&1
+
+        $LASTEXITCODE | Should -Be 1
+        ($output | Out-String) | Should -Match 'using PSScriptAnalyzer default rules'
+        ($output | Out-String) | Should -Match 'PSAvoidUsingInvokeExpression'
     }
 
     It 'applies the repository formatting rules' {
