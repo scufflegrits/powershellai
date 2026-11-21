@@ -15,11 +15,44 @@ Read the best-practices guide before writing or reviewing PowerShell here. Where
 
 ### Checks
 
-CI runs the guide checker (PSScriptAnalyzer plus supplemental checks) through the reusable workflow `scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.1.0`. To run the same checks locally, use PSScriptAnalyzer 1.24.0 and Pester 5.7.1:
+CI runs the guide checker (PSScriptAnalyzer plus supplemental checks) through the reusable workflow `scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.1.0`. Local checks require PowerShell 7 and PSScriptAnalyzer 1.24.0, plus Pester 5.7.1 when CI runs tests. Install missing modules only through an approved setup process; the [repository README](https://github.com/scufflegrits/powershellai/blob/v1.1.0/README.md) has the pinned install commands.
+
+Run the following in PowerShell from the consuming repository's root. It downloads the checker from the same release as CI into a temporary directory outside the repository, so the checker does not analyze its own downloaded copy. Keep `$guideVersion`, the workflow reference, and the guide links on the same release when upgrading.
 
 ```powershell
-Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
-Invoke-Pester -Path ./Tests -Output Detailed
+$guideVersion = 'v1.1.0'
+$guideTools = Join-Path ([System.IO.Path]::GetTempPath()) "powershellai-$guideVersion"
+$null = New-Item -ItemType Directory -Path $guideTools -Force -ErrorAction Stop
+$guideChecker = Join-Path $guideTools 'Invoke-PowerShellGuideCheck.ps1'
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/scufflegrits/powershellai/$guideVersion/Invoke-PowerShellGuideCheck.ps1" -OutFile $guideChecker -ErrorAction Stop
+
+pwsh -NoProfile -NonInteractive -Command {
+    param($checker)
+    Import-Module PSScriptAnalyzer -RequiredVersion 1.24.0 -ErrorAction Stop
+    & $checker -Path .
+    exit $LASTEXITCODE
+} -args $guideChecker
+if ($LASTEXITCODE -ne 0) {
+    throw 'PowerShell guide checks failed.'
+}
 ```
 
-Omit `-Settings` if this repository has no settings file. The supplemental checks need [`Invoke-PowerShellGuideCheck.ps1`](https://github.com/scufflegrits/powershellai/blob/v1.1.0/Invoke-PowerShellGuideCheck.ps1) from the same release; CI runs it automatically. Do not install tools without approval, and never report a check as passing unless you ran it.
+The checker discovers the nearest `PSScriptAnalyzerSettings.psd1`, stopping at the repository root, just as CI does. If CI overrides `path`, `settings`, or `severity`, pass matching `-Path`, `-Settings`, or `-Severity` arguments to the checker above. Informational findings require `-Severity Error,Warning,Information`; the default is `Error,Warning`.
+
+If CI runs Pester, run this next, using the same test path as its `pester-path` input. Omit it when CI skips Pester. The child process returns a failing exit code when tests fail, matching CI.
+
+```powershell
+pwsh -NoProfile -NonInteractive -Command {
+    Import-Module Pester -RequiredVersion 5.7.1 -ErrorAction Stop
+    $configuration = New-PesterConfiguration
+    $configuration.Run.Path = './Tests'
+    $configuration.Run.Exit = $true
+    $configuration.Output.Verbosity = 'Detailed'
+    Invoke-Pester -Configuration $configuration
+}
+if ($LASTEXITCODE -ne 0) {
+    throw 'Pester tests failed.'
+}
+```
+
+Never report a check as passing unless you ran it.
