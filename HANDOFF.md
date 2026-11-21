@@ -31,6 +31,7 @@ If the second command lists any commits, this file may be out of date: read thos
 - Released **v1.1.0** (stable guide filenames, checker fixes, analyzer settings, tiered agent workflow, reusable workflow, and `templates/AGENTS-powershell.md`).
 - Since v1.1.0, unreleased: `RELEASING.md`; Mermaid conventions 1.0.12 and the audit scripts in `reference/scripts/`; top-down Mermaid diagrams in the README and `RELEASING.md`; a README rewrite so every section explains why it exists; `input/` ignored by git; this file. See `[Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
 - No release is scheduled for the unreleased changes. When one is, follow [RELEASING.md](RELEASING.md) exactly.
+- Mermaid audit unit tests now have a separate Ubuntu CI job using Python 3.13 and PyYAML 6.0.4. The same install and test commands also work in a Python virtual environment on Debian 13, without browser dependencies.
 
 ## Rules the owner has set
 
@@ -61,4 +62,3 @@ If the second command lists any commits, this file may be out of date: read thos
 
 - Reorder the README overview diagram so GitHub's zoom buttons don't cover the "This repository's CI" node.
 - Add a secret scan (for example gitleaks) to the reusable workflow.
-- Run `reference/scripts/test_mermaid_audit.py` in CI; it needs only PyYAML.

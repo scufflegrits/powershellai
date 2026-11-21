@@ -1,8 +1,9 @@
 # Mermaid audit scripts
 
 Tools that support the [Mermaid conventions](../mermaid-best-practices.md). They are
-optional: nothing in this repository's CI runs them, and the conventions can be
-followed with `mmdc` alone.
+optional for diagram work, and the conventions can be followed with `mmdc` alone.
+This repository's CI runs the unit tests once on Ubuntu with Python 3.13 and
+PyYAML 6.0.4. Browser rendering and the full diagram audit remain manual checks.
 
 | File | Purpose |
 | --- | --- |
@@ -29,7 +30,15 @@ followed with `mmdc` alone.
   MERMAID_DIST="$(npm root -g)/@mermaid-js/mermaid-cli/node_modules/mermaid/dist"
   ```
 
-The unit tests need only PyYAML.
+The unit tests need only PyYAML. To match CI in an existing Python environment:
+
+```bash
+python -m pip install --disable-pip-version-check PyYAML==6.0.4
+```
+
+On Debian, use a virtual environment rather than installing into the system
+Python. With `python3-venv` installed, create one with `python3 -m venv .venv`
+and activate it with `source .venv/bin/activate` before installing PyYAML.
 
 ## Usage
 
@@ -44,7 +53,7 @@ python -B reference/scripts/audit_mermaid.py README.md RELEASING.md \
 python -B reference/scripts/opaque_svg.py diagram.svg --output diagram-opaque.svg --color white
 
 # Unit tests.
-cd reference/scripts && python -B -m unittest test_mermaid_audit
+python -B -m unittest discover -s reference/scripts -p 'test_mermaid_audit.py' -v
 ```
 
 Add `--no-sandbox` to the audit only if Chromium cannot start otherwise, for example
