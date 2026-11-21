@@ -12,7 +12,7 @@ You do not need much AI experience. Start with one script and follow the review 
 - [Start here](#start-here)
 - [Ways to use this project](#ways-to-use-this-project)
 - [Use this project without AI](#use-this-project-without-ai)
-- [Fill out a template to start an AI task](#fill-out-a-template-to-start-an-ai-task)
+- [Use this project with AI](#use-this-project-with-ai)
 - [Review an existing script](#review-an-existing-script)
   - [1. Save the script and a copy of the review template](#1-save-the-script-and-a-copy-of-the-review-template)
   - [2. Fill out intake.md](#2-fill-out-intakemd)
@@ -97,7 +97,7 @@ You can use the guides and checking tools directly; you do not need an AI assist
 
 Use the guides, checker, Pester tests, and GitHub workflow to check PowerShell scripts without AI. If you want an AI assistant to help, the next section shows how to give it prompt templates and shared instructions so it can use those same guides and tools to review or create scripts.
 
-## Fill out a template to start an AI task
+## Use this project with AI
 
 **You fill out one task template.** Keep the original template files unchanged so they can be used again. Files ending in `.md` are plain-text documents; open them in your usual text editor.
 
