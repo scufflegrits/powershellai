@@ -29,6 +29,7 @@ Design and implement a maintainable PowerShell script that satisfies the task an
 7. Use a Mermaid flowchart for complex control flow as described in `prompt-common.md`.
 8. Verify the completed implementation and tests using the workflow tier chosen in `prompt-common.md`. Resolve findings and repeat verification after changes.
 9. Review the final diff and report files created, behavior, checks run, results, and limitations.
+10. Follow the checked-script header and fingerprint workflow in `prompt-common.md`: when required checks pass, stamp the final script, recheck it, and deliver its verification report and adjacent `.sha256` file. If checks are incomplete or fail, explain that status and omit the stamp.
 
 ## Creation checklist
 
@@ -42,5 +43,6 @@ Design and implement a maintainable PowerShell script that satisfies the task an
 - [ ] PSScriptAnalyzer and guide checks were run where available
 - [ ] Final changes were verified as the chosen workflow tier requires
 - [ ] Final diff, results, assumptions, and limitations were reported
+- [ ] Checked-script header and final fingerprint were delivered, or their omission was explained under the shared workflow
 
 Mark items complete only after doing them. Mark non-applicable items `N/A` with a brief reason, or blocked items `Blocked` with what is needed.

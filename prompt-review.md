@@ -25,6 +25,7 @@ Review the supplied existing PowerShell script against the repository's current 
 5. Separate confirmed defects from risks, style suggestions, and questions requiring engineer judgment.
 6. If updating is authorized, make a focused patch, add or update tests as appropriate, and verify it using the shared workflow.
 7. If the script already follows the relevant guidance, say so; do not invent changes to justify the review.
+8. When corrections are authorized, follow the checked-script header and fingerprint workflow in `prompt-common.md`. Stamp only the corrected copy after the required checks pass, recheck its final form, and deliver its report and adjacent `.sha256` file. For review-only work or incomplete verification, leave the original untouched and explain why no stamp was issued.
 
 ## Review checklist
 

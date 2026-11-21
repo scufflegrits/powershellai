@@ -95,3 +95,19 @@ and Windows; it does not intentionally run the failing original test configurati
 
 The tests do not simulate permission failures or concurrent filesystem changes.
 Passing them demonstrates the listed cases, not every possible operating condition.
+
+## Finish a checked delivery
+
+When you use this example to practice the full AI workflow, ask for a separate
+improved copy and a verification report. Follow the [checked-header and fingerprint
+steps](../../README.md#the-checked-script-header-and-fingerprint): complete the
+required checks, add the actual PowerShellAI revision/date/report reference to
+the script's help, recheck the final file, then record its SHA-256 in the report
+and an adjacent `.sha256` file. Do not stamp the intentionally defective original.
+
+Use the [fingerprint comparison](../../README.md#check-whether-a-stamped-script-has-changed)
+to check the delivered copy. As a controlled exercise, edit a duplicate, then
+compare it with the same saved fingerprint: the unchanged copy should report
+`MATCH`, while the edited duplicate should report `DIFFERENT`. Keep the trusted
+reference unchanged. This tests change detection; it does not add new behavior
+coverage to the log-counting tests.

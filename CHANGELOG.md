@@ -4,6 +4,8 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- Added a checked-script delivery workflow to the AI prompts: actual PowerShellAI release/commit, date, scope and report reference in the help header, final rechecks, and SHA-256 in the report and an adjacent `.sha256` file. README diagrams show review, authorized correction, stamping, change detection, and the lab-edit/re-review loop. Changed working copies retain historical check details and dated change notes; incomplete checks produce no current stamp.
+- Reworked README for script authors with little AI experience: explains the value of shared standards and checks, how to fill out request templates, how to share files, how to start a review, and how to ask the AI to use its report to create and verify an improved copy. Added a creation path and moved diagrams behind expandable sections.
 - Added a pre-production review walkthrough covering scripts imported into `input/`, review requests and reports, isolated correction/tests, environment validation, and the distinction between local review and production approval.
 - Added a worked log-summary review with original and corrected scripts, shared Pester tests, and a walkthrough linked from "Start here"; CI now discovers both the checker tests and example tests.
 - Consumer instructions now download and run the release-pinned guide checker locally, select the pinned analyzer and Pester versions explicitly, and propagate failing checks instead of showing PSScriptAnalyzer alone.

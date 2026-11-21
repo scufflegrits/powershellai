@@ -120,6 +120,13 @@ run its focused suite with Pester 5.7.1 and analyze the corrected script again.
 Fix findings and repeat verification after changes. The reviewer also checks the
 stable final diff in the separate verification pass required by the shared prompt.
 
+For a checked delivery, follow the shared instructions for the checked header:
+complete the agreed checks, add the actual PowerShellAI version/commit and report
+reference to the corrected copy, recheck its final form, and record its SHA-256
+in the report and an adjacent `.sha256` file. Omit the stamp if required checks
+remain incomplete. The [README comparison commands](../../README.md#check-whether-a-stamped-script-has-changed)
+let the recipient detect subsequent edits against a trusted saved fingerprint.
+
 The [worked log-summary review](../worked-review/README.md) demonstrates this
 part with runnable scripts: the original passes static checks but fails four
 behavior tests, while the correction passes all eight.
@@ -138,6 +145,16 @@ on `-WhatIf`: the switch only protects actions that actually honor it.
 Keep the report tied to the exact corrected file and its hash. If the candidate
 changes after testing, review and verify the updated version. Resolve blocking
 findings or record an explicit owner decision about outstanding risks.
+
+Keep the last checked file and fingerprint as your reference. If you edit a
+separate lab copy, mark its previous check as historical, say that re-review is
+required, and add dated header notes explaining the changes and lab findings.
+Give the AI those notes, the edited file, and the previous checked source (or Git
+revision) and report so it can compare the actual changes. A new successful review
+produces a new stamped copy and fingerprint, followed by another lab pass. If no
+script edit is needed, record lab results outside the script so its hash stays
+unchanged. The [README lab-change workflow](../../README.md#after-lab-testing-record-changes-and-ask-for-another-review)
+includes a header example and a message you can send to the AI.
 
 Move the reviewed changes and appropriate tests into the script's owning project
 through its normal review process, with internal reports kept in an approved
