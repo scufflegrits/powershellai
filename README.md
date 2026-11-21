@@ -85,6 +85,7 @@ Colors are the same in every diagram: blue for documents and prompts, green for 
 
 Pick the path that matches what you are doing:
 
+- **Seeing a complete example first.** Follow the [worked script review](examples/worked-review/README.md): inspect a small script, read the findings, compare the correction, and run the same tests against both versions.
 - **Writing or reviewing PowerShell yourself.** Read [PowerShell Best Practices](powershell-best-practices.md) first. It is the standard everything else in this repository is built on. Read the [Pester testing guide](powershell-pester-testing.md) when you add tests, and the [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md) when you set up automated checks.
 - **Asking an AI to review or write a script.** Give the AI [prompt-common.md](prompt-common.md) together with either [prompt-review.md](prompt-review.md) or [prompt-create.md](prompt-create.md). First replace the placeholders in angle brackets, such as `<what the script should do>`: the prompts are templates, and the AI cannot guess your requirements. The review prompt does not change your script unless you ask it to.
 - **Changing this repository.** Install the [requirements](#requirements), then run the [checks](#check-your-code-with-the-linter) and [tests](#run-the-tests) before you push.
@@ -274,12 +275,12 @@ flowchart TD
 
 ## Run the tests
 
-These tests check this repository's own check script, **not your scripts**. They make sure the check script still catches the problems it should; if it had a bug, it could report a clean result for bad code. To test your own scripts, write Pester tests for them, as the [Pester testing guide](powershell-pester-testing.md) describes.
+The tests in `Tests/` check this repository's own check script. They make sure it still catches the problems it should; if it had a bug, it could report a clean result for bad code. The [worked example](examples/worked-review/README.md) has a separate test suite for its corrected script. Neither suite tests your own scripts; write Pester tests for them as the [Pester testing guide](powershell-pester-testing.md) describes.
 
 From the repository root:
 
 ```powershell
-Invoke-Pester -Path ./Tests -Output Detailed
+Invoke-Pester -Path . -Output Detailed
 ```
 
 The tests run the check script in a separate `pwsh` process, so PSScriptAnalyzer must be installed for that process too.
@@ -390,6 +391,7 @@ flowchart TD
 - `reference/`: supporting material for AI-assisted code review. The Mermaid conventions make agents diagram a script the same way every time: one node per decision, side effect, or exit path, with every branch labeled, and each diagram rendered and checked before it is delivered. A reviewer can then compare the diagram with the code to find paths the code doesn't handle. The diagram is a review aid, not a substitute for tests. `reference/scripts/` holds an optional tool that audits these diagrams.
 - `input/`: put a script here when you ask an AI to review it with the review prompt, so the AI knows which file to look at. Git ignores everything in this folder, because a script under review may contain internal names or secrets that must not reach this public repository.
 - `Tests/`: Pester tests for the check script (not for your scripts).
+- `examples/worked-review/`: a complete review walkthrough with original and corrected scripts and shared behavior tests.
 - `PSScriptAnalyzerSettings.psd1`: which analyzer rules this repository enforces, such as consistent indentation and brace placement. Copy it to another repository to apply the same rules there.
 - `CHANGELOG.md`: what changed in each version, so you can see what an upgrade brings before you take it.
 - `RELEASING.md`: maintainer steps for publishing a new version safely.
@@ -400,3 +402,54 @@ flowchart TD
 Each guide shows its version near the top, for example `**Guide version:** 1.1.0`. The version goes up whenever the guide changes, so you can tell whether two people are working from the same rules. Filenames never change, so links to a guide keep working.
 
 To see what changed, read [CHANGELOG.md](CHANGELOG.md). To see an earlier version of a guide, check out a release tag or run `git log -- <guide>.md`. Maintainers publishing a new version should follow [RELEASING.md](RELEASING.md).
+
+## Appendix: Acronyms and key terms
+
+### Acronyms and abbreviations
+
+| Acronym or abbreviation | Full form | Meaning in this document |
+|---|---|---|
+| AI | Artificial intelligence | Assistants that use the guides and prompts to write or review PowerShell. |
+| CI | Continuous integration | Automated checks that GitHub Actions runs when changes are pushed or proposed. |
+| ELK | Eclipse Layout Kernel | A diagram layout engine mentioned in the Mermaid source comments; this README uses dagre instead. |
+| JSON | JavaScript Object Notation | The format used for the workflow's operating-system list, such as `["ubuntu-latest", "windows-latest"]`. |
+| OS | Operating system | A platform on which checks run, such as Ubuntu or Windows; `os` is a workflow input. |
+| SVG | Scalable Vector Graphics | A vector image format produced by diagram tools and handled by the audit tool's background helper. |
+| TD | Top-down | The Mermaid direction setting that arranges a flowchart from top to bottom. |
+| YAML | YAML Ain't Markup Language | The configuration format used by GitHub Actions workflows and the Mermaid configuration blocks. |
+
+### Key terms
+
+| Term | Plain-language definition | How it applies here |
+|---|---|---|
+| AI agent | An AI assistant that can read files and use tools to carry out a task. | Follows the guides, uses the review or creation prompt, and reports evidence from checks. |
+| Array | An ordered collection of values. | The checker can flag arrays grown with `+=` inside loops, a pattern that can cause repeated copying. |
+| Commit | A recorded set of changes in Git, identified by a unique identifier. | A release tag points to a commit so consumers can select a particular version of the guides and tools. |
+| Consumer repository | Another project that uses shared material from this repository. | Copies the agent-instruction template and calls the reusable workflow at a pinned release. |
+| Exit code | A number a process returns to indicate its result. | The guide checker returns `1` for errors or warnings and `0` when no failing findings remain. |
+| Finding | A reported problem or item that needs review. | Includes a file location, severity, rule name, and explanation. |
+| Git | A tool that records and tracks changes to files. | Keeps the repository's history and release tags and ignores local review scripts in `input/`. |
+| GitHub Actions | GitHub's service for running automated workflows. | Runs the checker, Pester tests, and Mermaid unit tests on designated runners. |
+| Job | A group of workflow steps executed on a runner. | The PowerShell checks run for each selected operating system; Mermaid unit tests have a separate Ubuntu job. |
+| Linter / static analysis | A tool or method that examines code without executing it to find likely mistakes. | PSScriptAnalyzer checks PowerShell rules; it cannot prove that a script behaves correctly. |
+| Mermaid | A text format for describing diagrams. | Draws the flowcharts that explain how the guides, prompts, checker, and workflows fit together. |
+| Module | A package of PowerShell commands that can be installed and shared. | PSScriptAnalyzer and Pester are the modules required for analysis and testing. |
+| Parser error | A syntax problem that prevents code from being read as a valid program. | The guide checker always reports PowerShell parser errors, regardless of the requested severities. |
+| Pester | A testing framework for PowerShell. | Tests the checker and worked example here; consumers write their own Pester tests for their scripts. |
+| Pinned version | A deliberately selected version rather than whichever version happens to be newest. | Release references and module versions keep checks consistent until an intentional upgrade. |
+| PowerShell Gallery | A public repository of PowerShell modules and scripts. | Supplies the pinned PSScriptAnalyzer and Pester modules through the documented install commands. |
+| Prompt | Instructions and task details given to an AI assistant. | The shared prompt supplies workflow rules; the review and creation prompts define the requested work. |
+| PSScriptAnalyzer | A static-analysis module for PowerShell. | Supplies most automated rules, with repository settings controlling which rules apply. |
+| Pull request | A proposed set of repository changes submitted for review. | Triggers CI so problems can be found before the changes are merged. |
+| `pwsh` | The command used to start PowerShell 7. | Runs local commands and the separate processes used by the checker tests. |
+| Release tag | A named Git reference identifying a published version. | Consumers use tags such as `v1.1.0`; this project's release policy forbids moving a published tag. |
+| Repository | A project's files together with their recorded Git history. | Holds the guides, prompts, scripts, tests, and workflow configuration. |
+| Repository root | The top-level folder of a repository. | The starting location for documented commands and the boundary for automatic settings discovery. |
+| Reusable workflow | A GitHub Actions workflow that other workflows can call. | Lets this repository and consumers run the same PowerShell checker and optional Pester tests. |
+| Runner | The machine or environment that executes a GitHub Actions job. | Provides the Ubuntu or Windows environment used for automated checks. |
+| Scope | The context in which a variable name is used. | Array-append detection distinguishes script-level variables from variables in separate functions. |
+| Severity | The importance assigned to a finding. | Errors and warnings fail the check; informational findings are review items that do not fail it. |
+| Supplemental check | An additional check beyond the analyzer's rules. | The guide checker adds parser-error reporting and an array-append check. |
+| Unit test | An automated test focused on a small part of a tool's behavior. | The Mermaid tests check the audit tool's source checks and SVG background helper without rendering diagrams. |
+| `-WhatIf` | A PowerShell option that previews supported changes without making them. | The guides promote it for safe operations, and review diagrams help reveal paths that bypass its protection. |
+| Workflow | A configuration describing automated jobs and when they run. | Files in `.github/workflows/` define this repository's CI and the checks consumers can reuse. |

@@ -4,6 +4,7 @@ Notable changes to the guides and tools are recorded here.
 
 ## [Unreleased]
 
+- Added a worked log-summary review with original and corrected scripts, shared Pester tests, and a walkthrough linked from "Start here"; CI now discovers both the checker tests and example tests.
 - Consumer instructions now download and run the release-pinned guide checker locally, select the pinned analyzer and Pester versions explicitly, and propagate failing checks instead of showing PSScriptAnalyzer alone.
 - Guide checker: array-append detection now keeps script and function variable names separate, preventing false findings on unrelated counters. Added regression tests for sibling and nested functions, nearest and explicit settings, and repository boundaries with `.git` directories or files.
 - CI now runs the Mermaid audit tool's unit tests in a separate Ubuntu job using Python 3.13 and pinned PyYAML 6.0.4; browser rendering remains a manual check.
