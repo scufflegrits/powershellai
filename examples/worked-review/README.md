@@ -93,6 +93,23 @@ paths; and invalid inputs. Read [the tests](Tests/Get-LogSummary.Tests.ps1) to s
 the assertions. CI discovers these tests and checks the corrected script on Ubuntu
 and Windows; it does not intentionally run the failing original test configuration.
 
+Here is the result for every behavior test:
+
+| Test case | Original script | Corrected script |
+|---|---|---|
+| Empty directory returns one summary object with count `0` | Pass | Pass |
+| One log file returns count `1` | Pass | Pass |
+| Three log files return count `3` | Pass | Pass |
+| Ignores a `.txt` file and a log in a subfolder | Pass | Pass |
+| Counts `app.log` but excludes a directory named `archive.log` | Fails: returns `2` | Pass: returns `1` |
+| Counts a log in a directory whose path contains brackets and spaces | Fails: wildcard matching can return `0` | Pass |
+| Stops with an error when the directory is missing | Fails: reports a non-terminating error, then returns a summary | Pass |
+| Rejects a file path instead of treating it as a directory | Fails: accepts the file path | Pass |
+
+The three count tests also check that exactly one object is returned and that its
+`Path` property preserves the supplied path. Static checks pass for both versions;
+they do not detect these input-dependent behavior defects.
+
 The tests do not simulate permission failures or concurrent filesystem changes.
 Passing them demonstrates the listed cases, not every possible operating condition.
 

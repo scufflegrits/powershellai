@@ -2,7 +2,7 @@
 
 Have a PowerShell script that works, but you are unsure whether it handles errors, avoids unwanted changes, or will be easy to maintain? PowerShellAI helps you review it and make a tested improvement. You can also use it with your AI assistant to create a new script: PowerShellAI gives the assistant a PowerShell best-practices guide to follow and tools to check the code and run tests before it hands the script back.
 
-This project contains writing guides, request templates, a code checker, and examples. **It does not contain an AI assistant.** You use your own AI assistant and give it the instructions and files described below. A *prompt* is simply the request you send to that assistant.
+This project contains writing guides, request templates, a code checker, and examples. **It does not contain an AI assistant.** You use your own AI assistant and give it the instructions and files described below. A *prompt* is the request you send to that assistant. PowerShellAI includes templates and shared instructions that show it how to use the project's guides and tools to review a script or create and test one.
 
 You do not need much AI experience. Start with one script and follow the review steps below.
 
@@ -11,6 +11,7 @@ You do not need much AI experience. Start with one script and follow the review 
 - [Why use PowerShellAI with an AI assistant?](#why-use-powershellai-with-an-ai-assistant)
 - [Start here](#start-here)
 - [Ways to use this project](#ways-to-use-this-project)
+- [Use this project without AI](#use-this-project-without-ai)
 - [Fill out a template to start an AI task](#fill-out-a-template-to-start-an-ai-task)
 - [Review an existing script](#review-an-existing-script)
   - [1. Save the script and a copy of the review template](#1-save-the-script-and-a-copy-of-the-review-template)
@@ -55,7 +56,7 @@ Different AI models may notice different problems. The best-practices guide give
 
 A capable AI can do these things without PowerShellAI if you give it equivalent instructions and tools. This project packages them so you can reuse the process. It does not guarantee that the AI finds every bug or that a passing check makes a script ready for production.
 
-The [worked example](examples/worked-review/README.md) shows why verification matters: the original script passes static checks but fails four behavior tests. The corrected script passes all eight tests.
+The [worked example](examples/worked-review/README.md) shows why verification matters: both scripts pass static checks, but behavior tests catch four defects in the original—it counts `.log` directories, mishandles bracketed paths, does not stop for a missing directory, and accepts a file path. The corrected script passes all eight tests. [See what each test checks](examples/worked-review/README.md#4-run-the-checks).
 
 ## Start here
 
@@ -81,9 +82,20 @@ You can begin a source review before installing the checking tools. If a tool is
 | Learn better PowerShell habits | Read the [best-practices guide](powershell-best-practices.md) and the [worked example](examples/worked-review/README.md). |
 | Find problems in a script you wrote | Complete the review template and follow the [review steps](#review-an-existing-script). |
 | Ask AI to write a new script | Complete the creation template and follow the [creation steps](#create-a-new-script). |
-| Check code without AI | Run the [guide checker](#check-your-code-with-the-linter) against a named script or folder. |
+| Check code without AI | Use the checker, write and run Pester tests, or set up automatic GitHub checks. See [Use this project without AI](#use-this-project-without-ai). |
 | Review a script before using it in production | Follow the [pre-production walkthrough](examples/pre-production-review/README.md), including testing in a suitable lab. |
 | Use the same standards in another project | Follow [Use in other repositories](#use-in-other-repositories) for shared instructions and automated GitHub checks. |
+
+## Use this project without AI
+
+You can use the guides and checking tools directly; you do not need an AI assistant for these:
+
+- **Learn PowerShell practices.** Read the [best-practices guide](powershell-best-practices.md), [Pester testing guide](powershell-pester-testing.md), and [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md).
+- **Check code for common issues.** Install the tools in [Requirements](#requirements), then run the [guide checker](#check-your-code-with-the-linter) on a script or folder. It reads code without running it, so it cannot confirm that the script behaves as you intend.
+- **Test script behavior.** Write Pester tests for your own requirements and run them as described in the [Pester testing guide](powershell-pester-testing.md). The repository's [worked example](examples/worked-review/README.md) shows tests against an original and corrected script; those tests are for the example, not your script.
+- **Run checks automatically on GitHub.** Set up the [reusable workflow](#use-in-other-repositories) to run the checker and, if you provide tests, Pester when you push or open a pull request.
+
+Use the guides, checker, Pester tests, and GitHub workflow to check PowerShell scripts without AI. If you want an AI assistant to help, the next section shows how to give it prompt templates and shared instructions so it can use those same guides and tools to review or create scripts.
 
 ## Fill out a template to start an AI task
 
