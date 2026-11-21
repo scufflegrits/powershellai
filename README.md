@@ -384,9 +384,6 @@ The array-append check keeps variable names separate across functions to avoid c
 
 The check cannot tell whether your script does what you intended, or whether it is safe in your environment. That still needs tests and review. This checker reports findings; it does not add the checked header or create a fingerprint.
 
-<details>
-<summary>Show the diagram</summary>
-
 ```mermaid
 ---
 config:
@@ -450,8 +447,6 @@ flowchart TD
   class SG_CARD groupWrapper
 ```
 
-</details>
-
 ## Run the tests
 
 The tests in `Tests/` check this repository's own check script. They make sure it still catches the problems it should; if it had a bug, it could report a clean result for bad code. The [worked example](examples/worked-review/README.md) has a separate test suite for its corrected script. Neither suite tests your own scripts; write Pester tests for them as the [Pester testing guide](powershell-pester-testing.md) describes.
@@ -492,12 +487,11 @@ A separate Ubuntu job runs the Mermaid audit tool's unit tests with Python 3.13 
 - **Release tag**: a fixed name, such as `v1.1.0`, for one exact version of this repository. A tag never changes, so anything that refers to it gets the same files every time.
 - **Mermaid**: a text format for diagrams. GitHub draws Mermaid text as a picture, which is how the diagrams below appear.
 
+GitHub renders the diagrams on the README page. In VS Code, open the Markdown Preview with **Ctrl+Shift+V**; the regular editor shows the Mermaid text.
+
 ## How the pieces fit together
 
 Read this diagram from top to bottom. The guides at the top define the rules; everything below them uses those rules.
-
-<details>
-<summary>Show the diagram</summary>
 
 ```mermaid
 ---
@@ -569,16 +563,11 @@ flowchart TD
   class SG_CARD groupWrapper
 ```
 
-</details>
-
 Colors are the same in every diagram: blue for documents and prompts, green for scripts, settings, and CI steps, purple for other repositories, yellow for decisions, and red for failure paths.
 
 ### How a request becomes an improved script
 
 The shared AI instructions scale the amount of work to the task. A small change gets a separate checking pass; complex work calls for independent review where available. The AI should report which checks and review steps it actually completed.
-
-<details>
-<summary>Show the diagram</summary>
 
 ```mermaid
 ---
@@ -646,14 +635,9 @@ flowchart TD
   class SG_CARD groupWrapper
 ```
 
-</details>
-
 ### How the checked copy is identified later
 
 The header is added before the final checks. The fingerprint is calculated after all script edits, so it includes the header. A missing or invalid reference is a verification error, not a match.
-
-<details>
-<summary>Show the checked-header and fingerprint diagram</summary>
 
 ```mermaid
 ---
@@ -719,14 +703,9 @@ flowchart TD
   class SG_CARD groupWrapper
 ```
 
-</details>
-
 ### How lab changes return for another review
 
 A new hash after an intentional lab edit is expected. Change notes explain the reason for the edit, while the previous checked source lets the AI see the real differences. The earlier reference and records stay intact.
-
-<details>
-<summary>Show the lab-edit and re-review diagram</summary>
 
 ```mermaid
 ---
@@ -799,8 +778,6 @@ flowchart TD
   class SG_CARD groupWrapper
 ```
 
-</details>
-
 ## Use in other repositories
 
 Another PowerShell repository can use these standards and checks without copying this whole repository.
@@ -833,9 +810,6 @@ jobs:
 Optional inputs: `path` (default `.`), `settings` (default: nearest `PSScriptAnalyzerSettings.psd1`, otherwise PSScriptAnalyzer defaults), `severity` (default `Error,Warning`), and `os` (JSON array, default `["ubuntu-latest", "windows-latest"]`). The workflow uses the check script and tool versions from the tag you pin. To apply this repository's analyzer rules there too, copy [PSScriptAnalyzerSettings.psd1](PSScriptAnalyzerSettings.psd1) into the other repository's root.
 
 Each job of the reusable workflow runs these steps once for every operating system in `os`. It reports CI results; the AI's checked-header and fingerprint delivery steps are separate:
-
-<details>
-<summary>Show the diagram</summary>
 
 ```mermaid
 ---
@@ -898,8 +872,6 @@ flowchart TD
   class JOB_FAIL nodeOutcomeFail
   class SG_CARD groupWrapper
 ```
-
-</details>
 
 ## Repository layout
 
