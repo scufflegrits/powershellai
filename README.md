@@ -8,6 +8,38 @@ This repository helps people and AI assistants write PowerShell that is safe, re
 
 The automated checks find only some problems. Whether a script does the right thing still needs tests and review by a person or an AI.
 
+## Table of contents
+
+- [Ways to use this project](#ways-to-use-this-project)
+- [Words used in this README](#words-used-in-this-readme)
+- [How the pieces fit together](#how-the-pieces-fit-together)
+- [Start here](#start-here)
+- [Guides and tools](#guides-and-tools)
+- [Requirements](#requirements)
+- [Check your code with the linter](#check-your-code-with-the-linter)
+- [Run the tests](#run-the-tests)
+- [Use in other repositories](#use-in-other-repositories)
+- [Repository layout](#repository-layout)
+- [Guide versions](#guide-versions)
+- [Appendix: Acronyms and key terms](#appendix-acronyms-and-key-terms)
+  - [Acronyms and abbreviations](#acronyms-and-abbreviations)
+  - [Key terms](#key-terms)
+
+## Ways to use this project
+
+Choose the parts that fit your task. You can read the guides, run the automated checks, or combine them with an AI assistant. Reading the guides requires no tool installation. Running checks requires the [listed tools](#requirements); AI-assisted work requires an assistant that you supply.
+
+| What you want to do | How to use the project | What you get |
+|---|---|---|
+| Learn to write better PowerShell | Read the [best-practices guide](powershell-best-practices.md) and follow the [worked review](examples/worked-review/README.md). | Practical rules and an example showing how tests expose problems that linting misses. |
+| Review an existing script | Put a copy in `input/`, then give your AI assistant [the shared instructions](prompt-common.md) and [review prompt](prompt-review.md), with the exact filename and expected behavior. | Findings with evidence, proposed fixes, and an explanation of what was and was not verified. |
+| Create a new script | Give your AI assistant [the shared instructions](prompt-common.md) and [creation prompt](prompt-create.md), filled in with inputs, outputs, target environment, and acceptance criteria. | A script and appropriate tests, followed by verification against your requirements. |
+| Check code on your own machine | Install the [requirements](#requirements) and run the [guide checker](#check-your-code-with-the-linter) against a named file or folder. | Automated findings for analyzer rules and supplemental checks, with an exit code suitable for automation. |
+| Review a script before production | Follow the [pre-production walkthrough](examples/pre-production-review/README.md): preserve the original, request a review, authorize any fixes, and verify the correction in a suitable lab. | A review record and tested candidate to take through your normal production approval process. |
+| Adopt shared standards in another project | Copy the [agent-instruction template](templates/AGENTS-powershell.md) and call the [reusable workflow](#use-in-other-repositories), keeping their release references aligned. | Consistent AI instructions and local/CI checks without copying this entire repository. |
+
+Copying a script into `input/` does not start a review automatically. You must request the review or run the checker. Tests must exercise your script's required behavior; this repository's own passing tests do not establish that your script is ready for production.
+
 ## Words used in this README
 
 - **Module**: a packaged set of PowerShell commands that can be installed and shared, such as Pester.
