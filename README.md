@@ -1,6 +1,6 @@
 # PowerShell Engineering Guides and Tools
 
-Have a PowerShell script that works, but you are unsure whether it handles errors, avoids unwanted changes, or will be easy to maintain? PowerShellAI helps you review it and make a tested improvement. You can also use it to ask an AI assistant to write a new script.
+Have a PowerShell script that works, but you are unsure whether it handles errors, avoids unwanted changes, or will be easy to maintain? PowerShellAI helps you review it and make a tested improvement. You can also use it with your AI assistant to create a new script: PowerShellAI gives the assistant a PowerShell best-practices guide to follow and tools to check the code and run tests before it hands the script back.
 
 This project contains writing guides, request templates, a code checker, and examples. **It does not contain an AI assistant.** You use your own AI assistant and give it the instructions and files described below. A *prompt* is simply the request you send to that assistant.
 
