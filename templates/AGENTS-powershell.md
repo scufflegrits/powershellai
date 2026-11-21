@@ -1,26 +1,26 @@
 <!--
 Copy the section below into the consuming repository's AGENTS.md (or CLAUDE.md),
-then replace v1.1.0 with the release you want to pin. Delete this comment.
+then replace v1.2.0 with the release you want to pin. Delete this comment.
 -->
 
 ## PowerShell standards
 
-PowerShell code in this repository follows the PowerShell engineering guides, pinned to release `v1.1.0`:
+PowerShell code in this repository follows the PowerShell engineering guides, pinned to release `v1.2.0`:
 
-- [PowerShell Best Practices](https://github.com/scufflegrits/powershellai/blob/v1.1.0/powershell-best-practices.md): the main standard. AI agents must follow **§13 Rules for AI agents**.
-- [Pester testing guide](https://github.com/scufflegrits/powershellai/blob/v1.1.0/powershell-pester-testing.md)
-- [PSScriptAnalyzer guide](https://github.com/scufflegrits/powershellai/blob/v1.1.0/powershell-psscriptanalyzer.md)
+- [PowerShell Best Practices](https://github.com/scufflegrits/powershellai/blob/v1.2.0/powershell-best-practices.md): the main standard. AI agents must follow **§13 Rules for AI agents**.
+- [Pester testing guide](https://github.com/scufflegrits/powershellai/blob/v1.2.0/powershell-pester-testing.md)
+- [PSScriptAnalyzer guide](https://github.com/scufflegrits/powershellai/blob/v1.2.0/powershell-psscriptanalyzer.md)
 
 Read the best-practices guide before writing or reviewing PowerShell here. Where this repository's own documented conventions differ from the guide, follow this repository and note the deviation.
 
 ### Checks
 
-CI runs the guide checker (PSScriptAnalyzer plus supplemental checks) through the reusable workflow `scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.1.0`. Local checks require PowerShell 7 and PSScriptAnalyzer 1.24.0, plus Pester 5.7.1 when CI runs tests. Install missing modules only through an approved setup process; the [repository README](https://github.com/scufflegrits/powershellai/blob/v1.1.0/README.md) has the pinned install commands.
+CI runs the guide checker (PSScriptAnalyzer plus supplemental checks) through the reusable workflow `scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.2.0`. Local checks require PowerShell 7 and PSScriptAnalyzer 1.24.0, plus Pester 5.7.1 when CI runs tests. Install missing modules only through an approved setup process; the [repository README](https://github.com/scufflegrits/powershellai/blob/v1.2.0/README.md) has the pinned install commands.
 
 Run the following in PowerShell from the consuming repository's root. It downloads the checker from the same release as CI into a temporary directory outside the repository, so the checker does not analyze its own downloaded copy. Keep `$guideVersion`, the workflow reference, and the guide links on the same release when upgrading.
 
 ```powershell
-$guideVersion = 'v1.1.0'
+$guideVersion = 'v1.2.0'
 $guideTools = Join-Path ([System.IO.Path]::GetTempPath()) "powershellai-$guideVersion"
 $null = New-Item -ItemType Directory -Path $guideTools -Force -ErrorAction Stop
 $guideChecker = Join-Path $guideTools 'Invoke-PowerShellGuideCheck.ps1'

@@ -28,9 +28,8 @@ If the second command lists any commits, this file may be out of date: read thos
 
 ## Last session (2026-11-20)
 
-- Released **v1.1.0** (stable guide filenames, checker fixes, analyzer settings, tiered agent workflow, reusable workflow, and `templates/AGENTS-powershell.md`).
-- Since v1.1.0, unreleased: `RELEASING.md`; Mermaid conventions 1.0.12 and the audit scripts in `reference/scripts/`; top-down Mermaid diagrams in the README and `RELEASING.md`; a README rewrite so every section explains why it exists; `input/` ignored by git; this file. See `[Unreleased]` in [CHANGELOG.md](CHANGELOG.md).
-- No release is scheduled for the unreleased changes. When one is, follow [RELEASING.md](RELEASING.md) exactly.
+- Released **v1.2.0** (2026-11-20), adding plain-language onboarding, worked examples, checked-script fingerprints and lab re-review guidance, Mermaid audit tooling, and consumer CI templates. See [CHANGELOG.md](CHANGELOG.md).
+- The latest pushed commit, tag, and CI state can change; check GitHub before relying on this note. Follow [RELEASING.md](RELEASING.md) for the next release.
 - Mermaid audit unit tests now have a separate Ubuntu CI job using Python 3.13 and PyYAML 6.0.4. The same install and test commands also work in a Python virtual environment on Debian 13, without browser dependencies.
 - Checker boundary tests cover settings precedence, `.git` directory/file boundaries, and function scopes. Array-append detection now keeps script-level and function-local variable names separate; it remains a lexical heuristic rather than runtime type or control-flow analysis.
 - Consumer template local commands now use the release-pinned checker and explicitly import the pinned analyzer/Pester versions. Seven consumer scenarios passed on the Debian 13 lab VM: clean code, lint failure, settings discovery, parser failure, informational findings, and passing/failing Pester tests. Downloaded tools stay outside the consumer repository.

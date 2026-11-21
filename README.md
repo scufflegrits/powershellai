@@ -484,7 +484,7 @@ A separate Ubuntu job runs the Mermaid audit tool's unit tests with Python 3.13 
 - **Pester**: PowerShell's testing framework. A test runs code and checks that the result is what you expected.
 - **CI (continuous integration)**: checks that run automatically on GitHub every time someone pushes a change. This repository uses GitHub Actions for CI.
 - **AI agent**: an AI assistant, such as Claude or GitHub Copilot, that can read files and run commands in a repository.
-- **Release tag**: a fixed name, such as `v1.1.0`, for one exact version of this repository. A tag never changes, so anything that refers to it gets the same files every time.
+- **Release tag**: a fixed name, such as `v1.2.0`, for one exact version of this repository. A tag never changes, so anything that refers to it gets the same files every time.
 - **Mermaid**: a text format for diagrams. GitHub draws Mermaid text as a picture, which is how the diagrams below appear.
 
 GitHub renders the diagrams on the README page. In VS Code, open the Markdown Preview with **Ctrl+Shift+V**; the regular editor shows the Mermaid text.
@@ -782,7 +782,7 @@ flowchart TD
 
 Another PowerShell repository can use these standards and checks without copying this whole repository.
 
-**Always refer to a release tag**, such as `v1.1.0`, not to the `master` branch. A tag never changes, so your project keeps the exact rules it was tested with until you choose to upgrade. `master` changes whenever this repository changes, and a new rule could suddenly make your checks fail.
+**Always refer to a release tag**, such as `v1.2.0`, not to the `master` branch. A tag never changes, so your project keeps the exact rules it was tested with until you choose to upgrade. `master` changes whenever this repository changes, and a new rule could suddenly make your checks fail.
 
 **AI agent instructions.** Many AI coding assistants automatically read a file named `AGENTS.md` or `CLAUDE.md` when they start working in a repository. Copy the section in [templates/AGENTS-powershell.md](templates/AGENTS-powershell.md) into that file in the other repository. It points the AI to these guides at a fixed tag and tells it which checks to run, so the AI follows the same standards there.
 
@@ -802,7 +802,7 @@ permissions:
 
 jobs:
   powershell:
-    uses: scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.1.0
+    uses: scufflegrits/powershellai/.github/workflows/powershell-guide-check.yml@v1.2.0
     with:
       pester-path: ./Tests   # omit to skip Pester
 ```
@@ -932,7 +932,7 @@ To see what changed, read [CHANGELOG.md](CHANGELOG.md). To see an earlier versio
 | PSScriptAnalyzer | A static-analysis module for PowerShell. | Supplies most automated rules, with repository settings controlling which rules apply. |
 | Pull request | A proposed set of repository changes submitted for review. | Triggers CI so problems can be found before the changes are merged. |
 | `pwsh` | The command used to start PowerShell 7. | Runs local commands and the separate processes used by the checker tests. |
-| Release tag | A named Git reference identifying a published version. | Consumers use tags such as `v1.1.0`; this project's release policy forbids moving a published tag. |
+| Release tag | A named Git reference identifying a published version. | Consumers use tags such as `v1.2.0`; this project's release policy forbids moving a published tag. |
 | Repository | A project's files together with their recorded Git history. | Holds the guides, prompts, scripts, tests, and workflow configuration. |
 | Repository root | The top-level folder of a repository. | The starting location for documented commands and the boundary for automatic settings discovery. |
 | Reusable workflow | A GitHub Actions workflow that other workflows can call. | Lets this repository and consumers run the same PowerShell checker and optional Pester tests. |
