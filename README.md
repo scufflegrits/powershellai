@@ -11,6 +11,7 @@ You do not need much AI experience. Start with one script and follow the review 
 - [Why use PowerShellAI with an AI assistant?](#why-use-powershellai-with-an-ai-assistant)
 - [Start here](#start-here)
 - [Ways to use this project](#ways-to-use-this-project)
+- [Choose how to run checks](#choose-how-to-run-checks)
 - [Use this project without AI](#use-this-project-without-ai)
 - [Use this project with AI](#use-this-project-with-ai)
 - [Review an existing script](#review-an-existing-script)
@@ -86,6 +87,17 @@ You can begin a source review before installing the checking tools. If a tool is
 | Review a script before using it in production | Follow the [pre-production walkthrough](examples/pre-production-review/README.md), including testing in a suitable lab. |
 | Use the same standards in another project | Follow [Use in other repositories](#use-in-other-repositories) for shared instructions and automated GitHub checks. |
 
+## Choose how to run checks
+
+You can run checks yourself on your computer, or have GitHub run them automatically for a repository. Neither option requires AI.
+
+| Option | What you need to do | What happens |
+|---|---|---|
+| **Run checks locally** | Install PowerShell 7, PSScriptAnalyzer, and Pester as described in [Requirements](#requirements). Downloading this project as a ZIP is enough; you do not need Git or a GitHub repository. | Run the [guide checker](#check-your-code-with-the-linter) and your Pester tests from PowerShell when you choose. |
+| **Automate checks with GitHub Actions** | Store your PowerShell project on GitHub and add the [reusable workflow](#use-in-other-repositories). | GitHub runs the checker and any Pester tests you configure on pushes and pull requests. |
+
+You can also use an AI assistant with either option. If it can run commands in your project folder, it can run local checks; GitHub Actions can provide an additional check when changes are pushed.
+
 ## Use this project without AI
 
 You can use the guides and checking tools directly; you do not need an AI assistant for these:
@@ -93,7 +105,7 @@ You can use the guides and checking tools directly; you do not need an AI assist
 - **Learn PowerShell practices.** Read the [best-practices guide](powershell-best-practices.md), [Pester testing guide](powershell-pester-testing.md), and [PSScriptAnalyzer guide](powershell-psscriptanalyzer.md).
 - **Check code for common issues.** Install the tools in [Requirements](#requirements), then run the [guide checker](#check-your-code-with-the-linter) on a script or folder. It reads code without running it, so it cannot confirm that the script behaves as you intend.
 - **Test script behavior.** Write Pester tests for your own requirements and run them as described in the [Pester testing guide](powershell-pester-testing.md). The repository's [worked example](examples/worked-review/README.md) shows tests against an original and corrected script; those tests are for the example, not your script.
-- **Run checks automatically on GitHub.** Set up the [reusable workflow](#use-in-other-repositories) to run the checker and, if you provide tests, Pester when you push or open a pull request.
+- **Run checks automatically on GitHub.** Set up the [reusable workflow](#use-in-other-repositories) to run the checker and, if you provide tests, Pester when you push or open a pull request. See [the local-versus-automatic options](#choose-how-to-run-checks).
 
 Use the guides, checker, Pester tests, and GitHub workflow to check PowerShell scripts without AI. If you want an AI assistant to help, the next section shows how to give it prompt templates and shared instructions so it can use those same guides and tools to review or create scripts.
 
